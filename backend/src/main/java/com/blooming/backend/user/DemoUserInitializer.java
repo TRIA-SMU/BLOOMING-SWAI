@@ -15,7 +15,8 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * 구글 로그인 붙이기 전까지 쓸 데모 데이터.
- * 서버가 켜질 때 사용자가 한 명도 없으면 1번(새벽코딩), 2번(도토리)과 1번이 쓴 예시 글 1개를 만든다.
+ * 서버가 켜질 때 사용자가 한 명도 없으면 1번(새벽코딩), 2번(도토리), 3번(별빛), 4번(관리자)과
+ * 1번이 쓴 예시 글 1개를 만든다. 신고 3건 테스트는 2·3·4번으로 하면 된다.
  * 도움이 돼요는 본인 글에 못 누르니까, 2번(X-User-Id: 2)으로 1번 글에 눌러 보면 된다.
  */
 @Component
@@ -33,6 +34,8 @@ public class DemoUserInitializer implements ApplicationRunner {
         }
         User demo1 = userRepository.save(new User("demo1@blooming.local", "새벽코딩", Role.USER));
         userRepository.save(new User("demo2@blooming.local", "도토리", Role.USER));
+        userRepository.save(new User("demo3@blooming.local", "별빛", Role.USER));
+        userRepository.save(new User("admin@blooming.local", "관리자", Role.ADMIN));
 
         postRepository.save(Post.builder()
                 .author(demo1)
