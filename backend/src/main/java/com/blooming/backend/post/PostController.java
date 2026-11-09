@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import com.blooming.backend.global.auth.LoginUser;
 import com.blooming.backend.post.dto.PostCreateRequest;
@@ -46,5 +48,17 @@ public class PostController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return postService.list(resultType, challengeType, keyword, sort, page, size);
+    }
+
+    @PutMapping("/{id}")
+    public PostResponse update(@LoginUser Long userId, @PathVariable Long id,
+                               @Valid @RequestBody PostCreateRequest req) {
+        return postService.update(userId, id, req);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@LoginUser Long userId, @PathVariable Long id) {
+        postService.delete(userId, id);
     }
 }
