@@ -1,16 +1,33 @@
 package com.blooming.backend.ai;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.blooming.backend.post.ChallengeType;
+import com.blooming.backend.post.FactorTag;
 import com.blooming.backend.post.ResultType;
 import com.blooming.backend.post.Stage;
 
 /** 프롬프트에 넣을 한글 이름과 AI가 고를 수 있는 요인 태그 목록 */
 public final class PromptLabels {
 
-    /** AI는 이 목록 안에서만 태그를 고른다 (팀에서 태그 바꾸면 여기도 같이) */
-    public static final List<String> FACTOR_TAGS = List.of("사용자 조사", "역할 분담", "일정 관리", "준비 부족", "기타");
+    /**
+     * AI가 고를 수 있는 요인 태그: 한글 이름 → 게시글에 저장하는 FactorTag (민성 post/FactorTag와 맞춤)
+     * 팀에서 태그를 바꾸면 여기도 같이 바꾼다.
+     */
+    public static final Map<String, FactorTag> FACTOR_TAG_MAP = new LinkedHashMap<>();
+
+    static {
+        FACTOR_TAG_MAP.put("사용자 조사", FactorTag.USER_RESEARCH);
+        FACTOR_TAG_MAP.put("역할 분담", FactorTag.ROLE_DIVISION);
+        FACTOR_TAG_MAP.put("일정 관리", FactorTag.SCHEDULE_MANAGEMENT);
+        FACTOR_TAG_MAP.put("준비 부족", FactorTag.LACK_OF_PREP);
+        FACTOR_TAG_MAP.put("기타", FactorTag.ETC);
+    }
+
+    /** 프롬프트에 넣는 한글 태그 목록 */
+    public static final List<String> FACTOR_TAGS = List.copyOf(FACTOR_TAG_MAP.keySet());
 
     private PromptLabels() {
     }
