@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.blooming.backend.global.exception.ApiException;
 import com.blooming.backend.post.ChallengeType;
+import com.blooming.backend.post.FactorTag;
 import com.blooming.backend.post.ResultType;
 import com.blooming.backend.post.Stage;
 
@@ -29,8 +30,12 @@ public class AiAnalysisService {
             String goodPoints, String badPoints, String lessons, String nextPlan) {
     }
 
-    public record AnalyzeResponse(String summary, List<String> suggestedTags, List<String> keyLessons,
-            String nextTip) {
+    /**
+     * suggestedTags: 글 저장 API에 그대로 넣을 수 있는 FactorTag (예: SCHEDULE_MANAGEMENT)
+     * suggestedTagLabels: 화면에 보여줄 한글 이름 (예: 일정 관리), suggestedTags와 순서가 같다
+     */
+    public record AnalyzeResponse(String summary, List<FactorTag> suggestedTags, List<String> suggestedTagLabels,
+            List<String> keyLessons, String nextTip) {
     }
 
     public AnalyzeResponse analyze(Long userId, AnalyzeRequest req) {
@@ -67,13 +72,16 @@ public class AiAnalysisService {
 
         Map<String, Object> json = geminiClient.generateJson(prompt);
 
-        List<String> tags = toStringList(json.get("suggestedTags"), 3).stream()
-                .filter(PromptLabels.FACTOR_TAGS::contains)
+        List<String> labels = toStringList(json.get("suggestedTags"), 3).stream()
+                .filter(PromptLabels.FACTOR_TAG_MAP::containsKey)
+                .distinct()
                 .toList();
+        List<FactorTag> tags = labels.stream().map(PromptLabels.FACTOR_TAG_MAP::get).toList();
 
         return new AnalyzeResponse(
                 str(json.get("summary")),
                 tags,
+                labels,
                 toStringList(json.get("keyLessons"), 3),
                 str(json.get("nextTip")));
     }
