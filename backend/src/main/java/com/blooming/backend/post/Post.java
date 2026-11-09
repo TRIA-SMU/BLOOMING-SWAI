@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import com.blooming.backend.user.User;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +20,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -73,6 +78,12 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String nextPlan;
 
+    @ElementCollection
+    @CollectionTable(name = "post_factor_tags", joinColumns = @JoinColumn(name = "post_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tag")
+    private Set<FactorTag> factorTags = new HashSet<>();
+
     // ===== 연수(도움이 돼요/신고)와 같이 쓰는 칸 =====
     @Column(nullable = false)
     private int helpfulCount = 0;
@@ -92,7 +103,7 @@ public class Post {
 
     @Builder
     public Post(User author, ResultType resultType, ChallengeType challengeType, Stage stage, String title,
-            String goodPoints, String badPoints, String lessons, String nextPlan) {
+                String goodPoints, String badPoints, String lessons, String nextPlan, Set<FactorTag> factorTags) {
         this.author = author;
         this.resultType = resultType;
         this.challengeType = challengeType;
@@ -102,6 +113,9 @@ public class Post {
         this.badPoints = badPoints;
         this.lessons = lessons;
         this.nextPlan = nextPlan;
+        if (factorTags != null) {
+            this.factorTags = new HashSet<>(factorTags);
+        }
     }
 
     @PrePersist
@@ -143,5 +157,22 @@ public class Post {
     public void restore() {
         this.status = PostStatus.PUBLIC;
         this.reportCount = 0;
+    }
+
+    /** 글 수정. 결과를 바꾸면 게시판이 바뀌고 요인 태그도 다시 받는다 */
+    public void update(ResultType resultType, ChallengeType challengeType, Stage stage, String title,
+                       String goodPoints, String badPoints, String lessons, String nextPlan, Set<FactorTag> factorTags) {
+        this.resultType = resultType;
+        this.challengeType = challengeType;
+        this.stage = stage;
+        this.title = title;
+        this.goodPoints = goodPoints;
+        this.badPoints = badPoints;
+        this.lessons = lessons;
+        this.nextPlan = nextPlan;
+        this.factorTags.clear();
+        if (factorTags != null) {
+            this.factorTags.addAll(factorTags);
+        }
     }
 }
