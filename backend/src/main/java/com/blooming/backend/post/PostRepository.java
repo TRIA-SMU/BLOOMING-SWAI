@@ -7,4 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByStatusOrderByCreatedAtDesc(PostStatus status);
+
+    List<Post> findAllByAuthorIdOrderByCreatedAtDesc(Long authorId);
+
+    long countByAuthorId(Long authorId);
 }

@@ -48,5 +48,29 @@ public class DemoUserInitializer implements ApplicationRunner {
                 .lessons("기능을 줄이는 게 오히려 설득력이 있다")
                 .nextPlan("다음엔 발표 리허설을 두 번 이상 한다")
                 .build());
+
+        // 로드맵은 내 기록이 3개 이상이어야 해서, 1번 사용자 글을 2개 더 둔다
+        postRepository.save(Post.builder()
+                .author(demo1)
+                .resultType(ResultType.FAILURE)
+                .challengeType(ChallengeType.INTERN)
+                .stage(Stage.INTERVIEW)
+                .title("기업 분석 없이 면접 갔다가 떨어졌어요")
+                .goodPoints("자기소개는 자신 있게 했다")
+                .badPoints("회사 서비스에 대한 질문에 제대로 답하지 못했다")
+                .lessons("지원하는 회사의 서비스를 직접 써 보고 가야 한다")
+                .nextPlan("면접 전에 서비스 분석 노트를 한 장 만든다")
+                .build());
+        postRepository.save(Post.builder()
+                .author(demo1)
+                .resultType(ResultType.STOPPED)
+                .challengeType(ChallengeType.PROJECT)
+                .stage(Stage.ETC)
+                .title("역할 분담 없이 시작했다가 중간에 멈췄어요")
+                .goodPoints("아이디어 회의는 활발했다")
+                .badPoints("누가 무엇을 할지 정하지 않아 개발이 진행되지 않았다")
+                .lessons("시작할 때 역할과 마감일을 먼저 정해야 한다")
+                .nextPlan("첫 회의에서 역할표와 주간 일정을 만든다")
+                .build());
     }
 }
