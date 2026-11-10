@@ -21,7 +21,7 @@
 
 ## 인증
 
-개발 모드에서 토큰 없이 요청하면 서버가 1번 사용자를 선택하지만, 프론트는 이를 로그인으로 인정하지 않는다. 프론트는 개발용 X-User-Id를 자동으로 보내지 않는다. localStorage의 blooming.token에 저장된 토큰이 있으면 Authorization Bearer 헤더를 붙이고 /api/me로 실제 사용자를 확인한다. 401이면 토큰을 지우고 로그인 팝업을 표시한다. 로그인 화면 실행 방법은 auth-local-run.md를 참고한다.
+개발 모드에서 토큰 없이 요청하면 서버가 1번 사용자를 선택하지만, 프론트는 이를 로그인으로 인정하지 않는다. 프론트는 개발용 X-User-Id를 자동으로 보내지 않는다. localStorage의 blooming.token에 저장된 토큰이 있으면 Authorization Bearer 헤더를 붙이고 /api/me로 실제 사용자를 확인한다. 401이면 토큰을 지우고 로그인 페이지를 표시한다. 로그인 화면 실행 방법은 auth-local-run.md를 참고한다.
 
 ## 확인할 흐름
 

@@ -4,8 +4,8 @@ import { Header } from './components/Header'
 import { BoardPage } from './pages/BoardPage'
 import { DetailModal } from './pages/DetailModal'
 import { WriteModal } from './pages/WriteModal'
-import { AuthModal } from './pages/AuthModal'
-import type { AuthView } from './pages/AuthModal'
+import { AuthPage } from './pages/AuthPage'
+import type { AuthView } from './pages/AuthPage'
 import { detailToExperience, postsApi } from './api/posts'
 import type { HelpfulResponse, Me, ResultCode } from './api/posts'
 import { authToken, errorMessage } from './api/client'
@@ -150,11 +150,16 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
   }
 
   return <div className="app-shell">
-    <a className="skip-link" href="#main-content">본문으로 바로가기</a>
+    <a className="skip-link" href={authView ? '#auth-content' : '#main-content'}>본문으로 바로가기</a>
     <Header nickname={me?.nickname} authenticated={authenticated} checking={sessionStatus === 'checking'}
+      activeBoard={!authView}
       onLogin={() => setAuthView('login')} onLogout={logout} onNickname={() => setAuthView('nickname')}
-      onNavigate={(label) => setNotice(`${label} 화면을 준비하고 있어요.`)} />
+      onNavigate={(label) => { if (label === '경험 게시판' || label === '홈') { if (!needsNickname()) closeAuth() } else setNotice(`${label} 화면을 준비하고 있어요.`) }} />
     <div className="page-container">
+      {authView && <AuthPage key={authView} mode={authView} error={authError || meError} initialNickname={authView === 'nickname' ? me?.nickname : ''}
+        required={authView === 'nickname' && needsNickname()} onClose={closeAuth} onLogout={logout}
+        onPreview={() => setAuthView('preview')} onSwitch={() => setAuthView(authView === 'signup' ? 'login' : 'signup')} onSave={saveNickname} />}
+      <div hidden={Boolean(authView)}>
       {meError && <div className="api-banner" role="alert">
         <span>{meError}</span>
         {hasSession && <button onClick={() => { setSessionStatus('checking'); setMeRetry((value) => value + 1) }}>다시 확인</button>}
@@ -167,6 +172,7 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
       </div>}
       <BoardPage key={boardVersion} initialResult={initialResult} refreshKey={refreshKey}
         onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />
+      </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
       helped={helpful?.helped ?? false} saved={savedIds.includes(selected.id)}
@@ -175,12 +181,9 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
       onToggleSave={() => setSavedIds((ids) => ids.includes(selected.id) ? ids.filter((id) => id !== selected.id) : [...ids, selected.id])}
       onWrite={openWrite} />}
     {writeOpen && <WriteModal draft={draft} onChange={setDraft} onClose={() => setWriteOpen(false)} onComplete={completeWrite} />}
-    {authView && <AuthModal key={authView} mode={authView} error={authError} initialNickname={authView === 'nickname' ? me?.nickname : ''}
-      required={authView === 'nickname' && needsNickname()} onClose={closeAuth} onLogout={logout}
-      onPreview={() => setAuthView('preview')} onSave={saveNickname} />}
-    <button className="ai-fab" onClick={() => setNotice('AI 로드맵 화면을 준비하고 있어요.')} aria-label="AI 로드맵 열기">
+    {!authView && <button className="ai-fab" onClick={() => setNotice('AI 로드맵 화면을 준비하고 있어요.')} aria-label="AI 로드맵 열기">
       <img src={aiMascot} alt="" /><span>AI 로드맵</span>
-    </button>
+    </button>}
     <footer className="site-footer"><div><img className="footer-logo-image" src={bloomingLogo} alt="BLOOMING" /><p>모든 경험은 다음 도전을 위한 성장의 재료입니다.</p></div></footer>
     {notice && <div className="notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')} aria-label="안내 닫기"><X size={16} /></button></div>}
   </div>

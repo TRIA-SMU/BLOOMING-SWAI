@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Menu, X, UserRound, ChevronRight, LogOut } from 'lucide-react'
 import bloomingSymbol from '../assets/blooming-symbol.png'
 
-export function Header({ onNavigate, nickname, authenticated, checking, onLogin, onLogout, onNickname }: {
+export function Header({ onNavigate, nickname, authenticated, checking, activeBoard = true, onLogin, onLogout, onNickname }: {
   onNavigate: (label: string) => void
   nickname?: string
   authenticated: boolean
   checking: boolean
+  activeBoard?: boolean
   onLogin: () => void
   onLogout: () => void
   onNickname: () => void
@@ -17,7 +18,7 @@ export function Header({ onNavigate, nickname, authenticated, checking, onLogin,
     setMobileOpen(false)
     setProfileOpen(false)
     if (label === '경험 게시판') window.scrollTo({ top: 0, behavior: 'smooth' })
-    else onNavigate(label)
+    onNavigate(label)
   }
   return <header className="site-header"><div className="header-inner">
     <button className="logo" onClick={() => navigate('홈')} aria-label="BLOOMING 홈">
@@ -26,8 +27,8 @@ export function Header({ onNavigate, nickname, authenticated, checking, onLogin,
     </button>
     <nav id="main-navigation" className={`main-nav${mobileOpen ? ' main-nav--open' : ''}`} aria-label="주요 메뉴">
       {['경험 게시판', '도전 요인 분석', '체크리스트'].map((label) => <button
-        key={label} className={`nav-item${label === '경험 게시판' ? ' nav-item--active' : ''}`}
-        aria-current={label === '경험 게시판' ? 'page' : undefined}
+        key={label} className={`nav-item${label === '경험 게시판' && activeBoard ? ' nav-item--active' : ''}`}
+        aria-current={label === '경험 게시판' && activeBoard ? 'page' : undefined}
         onClick={() => navigate(label)}>{label}</button>)}
     </nav>
     <div className="header-actions">
