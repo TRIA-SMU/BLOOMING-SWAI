@@ -1,0 +1,82 @@
+import { useEffect, useRef, useState } from 'react'
+import { ArrowLeft, Bookmark, Flag, Heart, SquarePen } from 'lucide-react'
+import { GrowthIcon } from '../components/GrowthIcon'
+import { ResultBadge } from '../components/ResultBadge'
+import type { Experience } from '../types/experience'
+import './DetailModal.css'
+
+interface DetailModalProps {
+  item: Experience
+  helped: boolean
+  saved: boolean
+  onClose: () => void
+  onToggleHelpful: () => void
+  onToggleSave: () => void
+  onWrite: () => void
+}
+
+export function DetailModal({ item, helped, saved, onClose, onToggleHelpful, onToggleSave, onWrite }: DetailModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [reportNotice, setReportNotice] = useState('')
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    const previousFocus = document.activeElement
+    const previousOverflow = document.body.style.overflow
+    dialog?.showModal()
+    document.body.style.overflow = 'hidden'
+    return () => {
+      dialog?.close()
+      document.body.style.overflow = previousOverflow
+      if (previousFocus instanceof HTMLElement) previousFocus.focus()
+    }
+  }, [])
+
+  const sections = [
+    ['잘된 점', item.content.good],
+    ['아쉬운 점', item.content.regret],
+    ['배운 점', item.content.learned],
+    ['다음 도전에서 유지하거나 개선할 점', item.content.next],
+  ]
+
+  return <dialog ref={dialogRef} className="detail-modal" aria-labelledby="detail-title"
+    onCancel={(event) => { event.preventDefault(); onClose() }}
+    onClick={(event) => {
+      if (event.target !== event.currentTarget) return
+      const rect = event.currentTarget.getBoundingClientRect()
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose()
+    }}>
+    <article className="detail-page">
+      <button className="back-link" onClick={onClose}><ArrowLeft size={19} />경험 게시판으로 돌아가기</button>
+      <header className="detail-header">
+        <ResultBadge result={item.result} />
+        <h1 id="detail-title">{item.title}</h1>
+        <div className="author-row"><span className="avatar">{item.nickname.slice(0, 1)}</span><strong>{item.nickname}</strong><span>{item.date}</span></div>
+        <dl className="detail-meta">
+          <div><dt>도전 유형</dt><dd>{item.type}</dd></div>
+          <div><dt>진행 단계</dt><dd>{item.stage}</dd></div>
+          <div><dt>주요 요인</dt><dd className="tag-row">{item.tags.map((tag) => <span className="factor-tag" key={tag}>{tag}</span>)}</dd></div>
+        </dl>
+      </header>
+      <div className="article-body">{sections.map(([title, text], index) => <section className="article-section" key={title}>
+        <span className="section-number">{String(index + 1).padStart(2, '0')}</span>
+        <h2>{title}</h2><p>{text.trim() || '작성된 내용이 없어요.'}</p>
+      </section>)}</div>
+      <section className="reaction-card" aria-label="경험 반응">
+        <div className="reaction-growth"><GrowthIcon stage={item.growth} /><div><span>현재 이 경험은</span><strong>{item.growth}으로 자라고 있어요</strong></div></div>
+        <div className="reaction-action">
+          <button className={`button helpful-button${helped ? ' helpful-button--active' : ''}`} aria-pressed={helped} onClick={onToggleHelpful}><Heart size={19} />도움이 돼요</button>
+          <span aria-live="polite">{item.helpful}명이 도움을 받았어요</span>
+        </div>
+      </section>
+      <div className="detail-actions">
+        <button className="text-button" onClick={onWrite}><SquarePen size={16} />내 경험도 기록하기</button>
+        <div>
+          <button className="text-button" aria-pressed={saved} onClick={onToggleSave}><Bookmark size={15} fill={saved ? 'currentColor' : 'none'} />{saved ? '저장됨' : '저장'}</button>
+          <button className="text-button text-button--muted" onClick={() => setReportNotice('신고 기능을 준비하고 있어요.')}><Flag size={15} />신고</button>
+        </div>
+      </div>
+      {reportNotice && <p className="detail-notice" role="status">{reportNotice}</p>}
+    </article>
+  </dialog>
+}
