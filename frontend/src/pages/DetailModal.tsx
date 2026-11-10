@@ -9,13 +9,16 @@ interface DetailModalProps {
   item: Experience
   helped: boolean
   saved: boolean
+  helpfulBusy?: boolean
+  helpfulDisabled?: boolean
+  error?: string
   onClose: () => void
   onToggleHelpful: () => void
   onToggleSave: () => void
   onWrite: () => void
 }
 
-export function DetailModal({ item, helped, saved, onClose, onToggleHelpful, onToggleSave, onWrite }: DetailModalProps) {
+export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulDisabled = false, error, onClose, onToggleHelpful, onToggleSave, onWrite }: DetailModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [reportNotice, setReportNotice] = useState('')
 
@@ -51,6 +54,7 @@ export function DetailModal({ item, helped, saved, onClose, onToggleHelpful, onT
       <header className="detail-header">
         <ResultBadge result={item.result} />
         <h1 id="detail-title">{item.title}</h1>
+        {item.status === 'HIDDEN' && <p className="form-alert">검토 중인 글이에요. 작성자에게만 표시돼요.</p>}
         <div className="author-row"><span className="avatar">{item.nickname.slice(0, 1)}</span><strong>{item.nickname}</strong><span>{item.date}</span></div>
         <dl className="detail-meta">
           <div><dt>도전 유형</dt><dd>{item.type}</dd></div>
@@ -65,10 +69,12 @@ export function DetailModal({ item, helped, saved, onClose, onToggleHelpful, onT
       <section className="reaction-card" aria-label="경험 반응">
         <div className="reaction-growth"><GrowthIcon stage={item.growth} /><div><span>현재 이 경험은</span><strong>{item.growth}으로 자라고 있어요</strong></div></div>
         <div className="reaction-action">
-          <button className={`button helpful-button${helped ? ' helpful-button--active' : ''}`} aria-pressed={helped} onClick={onToggleHelpful}><Heart size={19} />도움이 돼요</button>
+          <button className={`button helpful-button${helped ? ' helpful-button--active' : ''}`} disabled={helpfulBusy || helpfulDisabled} aria-pressed={helped} aria-busy={helpfulBusy} onClick={onToggleHelpful}><Heart size={19} />{helpfulBusy ? '반영 중…' : '도움이 돼요'}</button>
+          {helpfulDisabled && <span>로그인한 다른 사람의 글에 반응할 수 있어요.</span>}
           <span aria-live="polite">{item.helpful}명이 도움을 받았어요</span>
         </div>
       </section>
+      {error && <p className="detail-notice" role="alert">{error}</p>}
       <div className="detail-actions">
         <button className="text-button" onClick={onWrite}><SquarePen size={16} />내 경험도 기록하기</button>
         <div>

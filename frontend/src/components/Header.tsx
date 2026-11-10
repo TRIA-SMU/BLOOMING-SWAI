@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Menu, X, UserRound, ChevronRight } from 'lucide-react'
 import bloomingSymbol from '../assets/blooming-symbol.png'
 
-export function Header({ onNavigate }: { onNavigate: (label: string) => void }) {
+export function Header({ onNavigate, nickname }: { onNavigate: (label: string) => void; nickname?: string }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const navigate = (label: string) => {
@@ -31,9 +31,8 @@ export function Header({ onNavigate }: { onNavigate: (label: string) => void }) 
         {profileOpen && <>
           <button className="menu-dismiss" aria-label="프로필 메뉴 닫기" onClick={() => setProfileOpen(false)} />
           <div id="profile-menu" className="profile-dropdown" onKeyDown={(event) => { if (event.key === 'Escape') setProfileOpen(false) }}>
-            <div className="profile-dropdown-head"><UserRound size={22} /><div><strong>새벽코딩</strong><small>데모 프로필</small></div></div>
+            <div className="profile-dropdown-head"><UserRound size={22} /><div><strong>{nickname ?? '내 정보'}</strong></div></div>
             {['마이페이지', '계정 설정'].map((label) => <button key={label} onClick={() => navigate(label)}><UserRound size={16} /><span>{label}</span><ChevronRight size={15} /></button>)}
-            <p>현재 인증이 연결되지 않은 데모입니다.</p>
           </div>
         </>}
       </div>

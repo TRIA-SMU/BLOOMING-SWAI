@@ -6,6 +6,7 @@
 .write-heading h1 { margin: 0 0 9px; font-size: clamp(30px,4vw,38px); font-weight: 700; letter-spacing: -.055em; line-height: 1.25; }
 .write-heading > p:last-child { color: var(--muted); font-size: 15px; line-height: 1.7; }
 .write-form { display: flex; flex-direction: column; gap: 16px; }
+.write-pending-fields { display: flex; flex-direction: column; gap: 16px; min-width: 0; margin: 0; padding: 0; border: 0; }
 .form-alert { padding: 13px 16px; border: 1px solid #f0cbbf; border-radius: 9px; color: #8b4b3d; background: #fff5ef; font-size: 12px; font-weight: 600; }
 .form-section { padding: 34px 38px 39px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
 .form-section-heading { display: flex; gap: 15px; margin-bottom: 32px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { GrowthIcon } from '../components/GrowthIcon'
 import { challengeLabels, factorLabels, resultLabels, stageLabels } from '../data/writeOptions'
 import { emptyDraft, validateDraft } from '../utils/experienceDraft'
+import { errorMessage } from '../api/client'
 import type { DraftErrors, ExperienceDraft } from '../utils/experienceDraft'
 import './WriteModal.css'
 
@@ -11,7 +12,7 @@ interface WriteModalProps {
   draft: ExperienceDraft
   onChange: (draft: ExperienceDraft) => void
   onClose: () => void
-  onComplete: (draft: ExperienceDraft) => void
+  onComplete: (draft: ExperienceDraft) => Promise<void>
 }
 
 function ChoiceGroup<T extends string>({ name, title, options, selected, error, multiple = false, onChange }: {
@@ -34,6 +35,8 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [submitted, setSubmitted] = useState(false)
   const [discardOpen, setDiscardOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const submitting = useRef(false)
   const errors: DraftErrors = submitted ? validateDraft(draft) : {}
   const dirty = JSON.stringify(draft) !== JSON.stringify(emptyDraft())
@@ -51,9 +54,9 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
     }
   }, [])
 
-  const close = () => { if (dirty) setDiscardOpen(true); else onClose() }
+  const close = () => { if (submitting.current) return; if (dirty) setDiscardOpen(true); else onClose() }
   const update = <K extends keyof ExperienceDraft>(key: K, value: ExperienceDraft[K]) => onChange({ ...draft, [key]: value })
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault()
     if (submitting.current) return
     setSubmitted(true)
@@ -64,7 +67,11 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
       return
     }
     submitting.current = true
-    try { onComplete(draft) } finally { submitting.current = false }
+    setSaving(true)
+    setSaveError('')
+    try { await onComplete(draft) }
+    catch (error) { setSaveError(errorMessage(error)) }
+    finally { submitting.current = false; setSaving(false) }
   }
   const textFields = [
     { key: 'goodPoints', label: '잘된 점', hint: '예: 매주 역할과 진행 상황을 공유해 마감 일정을 지킬 수 있었어요.' },
@@ -88,7 +95,9 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
         <p className="eyebrow">나의 경험을 다음 사람의 힌트로</p><h1 id="write-title">경험 기록하기</h1>
         <p>완벽하게 정리하지 않아도 괜찮아요. 기억나는 만큼 천천히 남겨보세요.</p>
       </header>
-      <form className="write-form" onSubmit={submit} noValidate>
+      <form className="write-form" onSubmit={submit} noValidate aria-busy={saving}>
+        {saveError && <div className="form-alert" role="alert">{saveError} 입력한 내용은 유지돼요.</div>}
+        <fieldset className="write-pending-fields" disabled={saving}>
         {submitted && Object.keys(errors).length > 0 && <div className="form-alert" role="alert">필수 항목을 확인해 주세요. 나머지 내용은 편한 만큼 작성해도 괜찮아요.</div>}
         <section className="form-section" aria-labelledby="intro-heading">
           <div className="form-section-heading"><span>01</span><div><h2 id="intro-heading">도전을 소개해 주세요</h2><p>어떤 경험이었는지 알아볼 수 있는 기본 정보예요.</p></div></div>
@@ -118,8 +127,9 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
           </div>)}
         </section>
         <footer className="form-footer"><p><GrowthIcon stage="씨앗" size="sm" />기록한 경험은 작은 씨앗에서 시작해요.</p><div>
-          <button type="button" className="button button--secondary" onClick={close}>취소</button><button className="button button--primary" type="submit">경험 등록하기</button>
+          <button type="button" className="button button--secondary" onClick={close}>취소</button><button className="button button--primary" type="submit">{saving ? '등록 중…' : '경험 등록하기'}</button>
         </div></footer>
+        </fieldset>
       </form>
     </>}
   </dialog>
