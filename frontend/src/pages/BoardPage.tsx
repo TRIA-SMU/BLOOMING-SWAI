@@ -9,12 +9,13 @@ import './BoardPage.css'
 const results: ResultType[] = ['성공', '실패', '중단']
 const types = ['전체', '공모전', '대외활동', '인턴', '취업', '프로젝트', '기타']
 
-export function BoardPage({ onWrite, onDetail, experiences = demoExperiences }: {
+export function BoardPage({ onWrite, onDetail, experiences = demoExperiences, initialResult = '성공' }: {
   onWrite: () => void
   onDetail: (item: Experience) => void
   experiences?: Experience[]
+  initialResult?: ResultType
 }) {
-  const [result, setResult] = useState<ResultType>('성공')
+  const [result, setResult] = useState<ResultType>(initialResult)
   const [type, setType] = useState('전체')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<'latest' | 'helpful'>('latest')
@@ -22,7 +23,7 @@ export function BoardPage({ onWrite, onDetail, experiences = demoExperiences }: 
   const filtered = experiences
     .filter((item) => item.result === result && (type === '전체' || item.type === type))
     .filter((item) => [item.title, item.preview, ...Object.values(item.content)].join(' ').toLocaleLowerCase().includes(query))
-    .sort((a, b) => sort === 'helpful' ? b.helpful - a.helpful : b.date.localeCompare(a.date))
+    .sort((a, b) => sort === 'helpful' ? b.helpful - a.helpful || b.id - a.id : b.date.localeCompare(a.date) || b.id - a.id)
 
   return <main id="main-content">
     <section className="page-heading board-heading">
