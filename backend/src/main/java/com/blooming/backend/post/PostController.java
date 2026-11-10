@@ -17,6 +17,7 @@ import com.blooming.backend.global.auth.LoginUser;
 import com.blooming.backend.post.dto.PostCreateRequest;
 import com.blooming.backend.post.dto.PostResponse;
 import com.blooming.backend.post.dto.PostSummaryResponse;
+import com.blooming.backend.post.dto.MyPageResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,10 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@LoginUser Long userId, @PathVariable Long id) {
         postService.delete(userId, id);
+    }
+
+    @GetMapping("/me")
+    public MyPageResponse myPage(@LoginUser Long userId) {
+        return postService.myPage(userId);
     }
 }
