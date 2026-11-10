@@ -1,0 +1,12 @@
+# 빌드 결과물·캐시
+build/
+.gradle/
+out/
+bin/
+.idea/
+.vscode/
+*.iml
+
+# 비밀 키는 절대 이미지에 넣지 않는다 (배포 서비스의 환경 변수로 넣기)
+src/main/resources/application-secret.properties
+.env
