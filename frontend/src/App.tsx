@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { Header } from './components/Header'
+import { BoardPage } from './pages/BoardPage'
 import bloomingLogo from './assets/blooming-logo.png'
 import aiMascot from './assets/ai-mascot.png'
 import './App.css'
@@ -12,12 +13,10 @@ function App() {
       <a className="skip-link" href="#main-content">본문으로 바로가기</a>
       <Header onNavigate={(label) => setNotice(`${label} 화면을 준비하고 있어요.`)} />
       <div className="page-container">
-        <main id="main-content">
-          <section className="page-heading"><div>
-            <h1>경험 게시판</h1>
-            <p>성공도, 실패도, 잠시 멈춘 경험도 누군가의 다음 선택에 도움이 됩니다.</p>
-          </div></section>
-        </main>
+        <BoardPage
+          onWrite={() => setNotice('경험 기록 화면을 준비하고 있어요.')}
+          onDetail={() => setNotice('후기 상세 화면을 준비하고 있어요.')}
+        />
       </div>
       <button className="ai-fab" onClick={() => setNotice('AI 로드맵 화면을 준비하고 있어요.')} aria-label="AI 로드맵 열기">
         <img src={aiMascot} alt="" /><span>AI 로드맵</span>
