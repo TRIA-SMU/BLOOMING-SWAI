@@ -2,9 +2,12 @@ export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL ?? '').replace(/
 const TOKEN_KEY = 'blooming.token'
 
 export const authToken = {
-  get: () => localStorage.getItem(TOKEN_KEY),
-  set: (token: string) => localStorage.setItem(TOKEN_KEY, token),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
+  get: () => { try { return localStorage.getItem(TOKEN_KEY) } catch { return null } },
+  set: (token: string) => {
+    try { localStorage.setItem(TOKEN_KEY, token) }
+    catch { throw new Error('로그인을 저장하지 못했어요. 브라우저 저장소 설정을 확인해 주세요.') }
+  },
+  clear: () => { try { localStorage.removeItem(TOKEN_KEY) } catch { /* 저장소를 사용할 수 없으면 이미 비로그인 상태다. */ } },
 }
 
 export class ApiError extends Error {
@@ -35,7 +38,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
       const body: unknown = await response.json()
       if (body && typeof body === 'object' && 'message' in body && typeof body.message === 'string') message = body.message
     } catch { /* 프록시의 비 JSON 오류도 HTTP 상태를 유지한다. */ }
-    if (response.status === 401) {
+    if (response.status === 401 && authToken.get() === token && !options.signal?.aborted) {
       authToken.clear()
       window.dispatchEvent(new Event('blooming:unauthorized'))
     }
