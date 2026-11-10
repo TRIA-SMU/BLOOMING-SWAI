@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import { ArrowUpDown, ChevronDown, Search, SlidersHorizontal, SquarePen, X } from 'lucide-react'
-import { experiences } from '../data/experiences'
+import { experiences as demoExperiences } from '../data/experiences'
 import { ExperienceCard } from '../components/ExperienceCard'
 import { BoardGrowthIcon } from '../components/BoardGrowthIcon'
-import type { ResultType } from '../types/experience'
+import type { Experience, ResultType } from '../types/experience'
 import './BoardPage.css'
 
 const results: ResultType[] = ['성공', '실패', '중단']
 const types = ['전체', '공모전', '대외활동', '인턴', '취업', '프로젝트', '기타']
 
-export function BoardPage({ onWrite, onDetail }: { onWrite: () => void; onDetail: () => void }) {
+export function BoardPage({ onWrite, onDetail, experiences = demoExperiences }: {
+  onWrite: () => void
+  onDetail: (item: Experience) => void
+  experiences?: Experience[]
+}) {
   const [result, setResult] = useState<ResultType>('성공')
   const [type, setType] = useState('전체')
   const [search, setSearch] = useState('')
@@ -63,7 +67,7 @@ export function BoardPage({ onWrite, onDetail }: { onWrite: () => void; onDetail
     </section>
     <div className="list-summary" aria-live="polite"><strong>{filtered.length}개의 경험</strong></div>
     <section id="experience-results" role="tabpanel" aria-labelledby={`result-tab-${results.indexOf(result)}`}>
-      {filtered.length ? <div className="experience-list" aria-label="경험 목록">{filtered.map((item) => <ExperienceCard key={item.id} item={item} onClick={onDetail} />)}</div>
+      {filtered.length ? <div className="experience-list" aria-label="경험 목록">{filtered.map((item) => <ExperienceCard key={item.id} item={item} onClick={() => onDetail(item)} />)}</div>
         : <div className="empty-state"><BoardGrowthIcon stage="싹" /><h2>조건에 맞는 경험이 아직 없어요</h2><p>검색어나 도전 유형을 바꾸면 다른 경험을 만날 수 있어요.</p>
           <button className="button button--secondary" onClick={() => { setType('전체'); setSearch('') }}>검색 초기화</button>
         </div>}
