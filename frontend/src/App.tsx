@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { Header } from './components/Header'
 import { BoardPage } from './pages/BoardPage'
+import { HomePage } from './pages/HomePage'
 import { DetailModal } from './pages/DetailModal'
 import { WriteModal } from './pages/WriteModal'
 import { AuthPage } from './pages/AuthPage'
@@ -18,6 +19,17 @@ import aiMascot from './assets/ai-mascot.png'
 import './App.css'
 
 function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
+  const [screen, setScreen] = useState<'home' | 'board'>(() => window.location.hash === '#board' ? 'board' : 'home')
+  useEffect(() => {
+    const syncScreen = () => {
+      const hash = window.location.hash
+      if (hash && hash !== '#home' && hash !== '#board') return
+      setScreen(hash === '#board' ? 'board' : 'home')
+      window.scrollTo(0, 0)
+    }
+    window.addEventListener('hashchange', syncScreen)
+    return () => window.removeEventListener('hashchange', syncScreen)
+  }, [])
   const [notice, setNotice] = useState('')
   const [me, setMe] = useState<Me | null>(null)
   const [meError, setMeError] = useState('')
@@ -127,9 +139,24 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
     const post = await postsApi.create(values)
     setDraft(emptyDraft())
     setWriteOpen(false)
+    setScreen('board')
+    window.location.hash = 'board'
     setInitialResult(post.resultType)
     setBoardVersion((version) => version + 1)
     setNotice('경험을 등록했어요.')
+  }
+
+  const navigate = (label: string) => {
+    if (needsNickname()) { setAuthView('nickname'); return }
+    if (label !== '홈' && label !== '경험 게시판') {
+      setNotice(`${label} 화면을 준비하고 있어요.`)
+      return
+    }
+    closeAuth(); closeDetail(); setNotice('')
+    const next = label === '홈' ? 'home' : 'board'
+    setScreen(next)
+    window.location.hash = next
+    window.scrollTo(0, 0)
   }
   const toggleHelpful = async () => {
     if (!selected || !helpful || !me || me.id === selected.authorId || reactionLock.current) return
@@ -152,9 +179,9 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
   return <div className="app-shell">
     <a className="skip-link" href={authView ? '#auth-content' : '#main-content'}>본문으로 바로가기</a>
     <Header nickname={me?.nickname} authenticated={authenticated} checking={sessionStatus === 'checking'}
-      activeBoard={!authView}
+      activeBoard={!authView && screen === 'board'}
       onLogin={() => setAuthView('login')} onLogout={logout} onNickname={() => setAuthView('nickname')}
-      onNavigate={(label) => { if (label === '경험 게시판' || label === '홈') { if (!needsNickname()) closeAuth() } else setNotice(`${label} 화면을 준비하고 있어요.`) }} />
+      onNavigate={navigate} />
     <div className="page-container">
       {authView && <AuthPage key={authView} mode={authView} error={authError || meError} initialNickname={authView === 'nickname' ? me?.nickname : ''}
         required={authView === 'nickname' && needsNickname()} onClose={closeAuth} onLogout={logout}
@@ -170,8 +197,9 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
         {detailError && <button onClick={retryDetail}>다시 시도</button>}
         <button onClick={closeDetail}>닫기</button>
       </div>}
-      <BoardPage key={boardVersion} initialResult={initialResult} refreshKey={refreshKey}
-        onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />
+      {screen === 'home' ? <HomePage onBoard={() => navigate('경험 게시판')} onAnalysis={() => navigate('도전 요인 분석')} />
+        : <BoardPage key={boardVersion} initialResult={initialResult} refreshKey={refreshKey}
+          onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />}
       </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
