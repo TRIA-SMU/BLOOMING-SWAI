@@ -16,6 +16,7 @@ import com.blooming.backend.user.User;
 import com.blooming.backend.user.UserRepository;
 import com.blooming.backend.reaction.ReactionRepository;
 import com.blooming.backend.report.ReportRepository;
+import com.blooming.backend.post.dto.MyPageResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -92,5 +93,15 @@ public class PostService {
             throw new ApiException(HttpStatus.FORBIDDEN, "내 글만 수정·삭제할 수 있어요");
         }
         return post;
+    }
+
+    @Transactional(readOnly = true)
+    public MyPageResponse myPage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> ApiException.notFound("사용자를 찾을 수 없어요"));
+        var posts = postRepository.findAllByAuthorIdOrderByCreatedAtDesc(userId).stream()
+                .map(MyPageResponse.MyPostResponse::from)
+                .toList();
+        return new MyPageResponse(user.getNickname(), postRepository.sumHelpfulCountByAuthorId(userId), posts);
     }
 }

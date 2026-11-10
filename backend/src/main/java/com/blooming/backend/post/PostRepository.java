@@ -32,4 +32,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                       @Param("challengeType") ChallengeType challengeType,
                       @Param("keyword") String keyword,
                       Pageable pageable);
+
+    List<Post> findAllByAuthorIdOrderByCreatedAtDesc(Long authorId);
+
+    @Query("select coalesce(sum(p.helpfulCount), 0) from Post p where p.author.id = :authorId")
+    long sumHelpfulCountByAuthorId(@Param("authorId") Long authorId);
 }
