@@ -1,4 +1,8 @@
 .app-shell { min-height: 100vh; }
+.api-banner { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding: 14px 18px; border: 1px solid var(--border); border-radius: 9px; background: #f0f3fa; font-size: 13px; }
+.api-banner > span { flex: 1; }
+.api-banner button { padding: 5px; color: var(--brand); font-weight: 600; text-decoration: underline; }
+button:disabled { cursor: not-allowed; opacity: .55; }
 .site-header { position: sticky; z-index: 50; top: 0; height: 68px; border-bottom: 1px solid rgba(216,212,204,.85); background: rgba(255,255,255,.96); backdrop-filter: blur(12px); }
 .header-inner { display: flex; align-items: stretch; justify-content: space-between; width: min(1120px, calc(100% - 48px)); height: 100%; margin: 0 auto; }
 .logo { display: flex; align-items: center; gap: 8px; }

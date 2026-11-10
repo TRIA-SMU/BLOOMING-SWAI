@@ -1,9 +1,11 @@
 export type ResultType = '성공' | '실패' | '중단'
 export type Growth = '씨앗' | '싹' | '봉우리' | '꽃'
 
-// 화면용 목 데이터. 서버 응답과의 변환은 API 연동 단계에서 분리한다.
+// 화면 표시용 데이터. 서버의 영문 enum은 API 어댑터에서 한글로 변환한다.
 export interface Experience {
   id: number
+  authorId?: number
+  status?: 'PUBLIC' | 'HIDDEN'
   result: ResultType
   title: string
   type: string

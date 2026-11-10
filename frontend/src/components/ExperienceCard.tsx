@@ -15,7 +15,7 @@ export function ExperienceCard({ item, onClick }: { item: Experience; onClick: (
           <div className="tag-row board-tag-row">{item.tags.map((tag) => <span className="factor-tag" key={tag}>{tag}</span>)}</div>
         </div>
         <h2><button className="card-title-button" onClick={onClick}>{item.title}<span className="sr-only"> 상세 보기</span></button></h2>
-        <p className="card-preview">{item.preview}</p>
+        {item.preview && <p className="card-preview">{item.preview}</p>}
       </div>
       <aside className="card-response-panel" aria-label="경험 반응">
         <div className="growth-status"><BoardGrowthIcon stage={item.growth} /><span><small>성장 단계</small><strong>{item.growth}</strong></span></div>
