@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { Header } from './components/Header'
 import { BoardPage } from './pages/BoardPage'
 import { DetailModal } from './pages/DetailModal'
 import { WriteModal } from './pages/WriteModal'
+import { AuthPage } from './pages/AuthPage'
+import type { AuthView } from './pages/AuthPage'
 import { detailToExperience, postsApi } from './api/posts'
 import type { HelpfulResponse, Me, ResultCode } from './api/posts'
-import { errorMessage } from './api/client'
+import { authToken, errorMessage } from './api/client'
+import { authApi, clearSession, finishNickname, needsNickname } from './api/auth'
 import { emptyDraft } from './utils/experienceDraft'
 import type { ExperienceDraft } from './utils/experienceDraft'
 import type { Experience } from './types/experience'
@@ -14,12 +17,16 @@ import bloomingLogo from './assets/blooming-logo.png'
 import aiMascot from './assets/ai-mascot.png'
 import './App.css'
 
-function App() {
+function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
   const [notice, setNotice] = useState('')
   const [me, setMe] = useState<Me | null>(null)
   const [meError, setMeError] = useState('')
   const [meRetry, setMeRetry] = useState(0)
-  const [authRequired, setAuthRequired] = useState(false)
+  const [hasSession, setHasSession] = useState(() => Boolean(authToken.get()))
+  const [sessionStatus, setSessionStatus] = useState<'guest' | 'checking' | 'authenticated'>(() => authToken.get() ? 'checking' : 'guest')
+  const [authView, setAuthView] = useState<AuthView | null>(previewNickname ? 'preview' : initialAuthError ? 'login' : null)
+  const [authError, setAuthError] = useState(initialAuthError)
+  const pendingAction = useRef<{ type: 'write' } | { type: 'detail'; id: number } | null>(null)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [selected, setSelected] = useState<Experience | null>(null)
   const [helpful, setHelpful] = useState<HelpfulResponse | null>(null)
@@ -36,20 +43,46 @@ function App() {
   const [boardVersion, setBoardVersion] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
   const [initialResult, setInitialResult] = useState<ResultCode>('SUCCESS')
+  const authenticated = sessionStatus === 'authenticated' && me != null
+
+  const resumePending = useCallback(() => {
+    const pending = pendingAction.current
+    pendingAction.current = null
+    if (pending?.type === 'write') setWriteOpen(true)
+    if (pending?.type === 'detail') {
+      setSelected(null); setHelpful(null); setDetailError(''); setReactionError(''); setDetailLoading(true)
+      setSelectedId(pending.id); setDetailRetry((value) => value + 1)
+    }
+  }, [])
 
   useEffect(() => {
+    if (!hasSession) return
     const controller = new AbortController()
     postsApi.me(controller.signal)
-      .then((user) => { if (!controller.signal.aborted) { setMe(user); setMeError(''); setAuthRequired(false) } })
-      .catch((error: unknown) => { if (!controller.signal.aborted) { setMe(null); setMeError(errorMessage(error)) } })
+      .then((user) => {
+        if (controller.signal.aborted) return
+        setMe(user); setMeError(''); setAuthError(''); setSessionStatus('authenticated')
+        if (needsNickname()) setAuthView('nickname')
+        else { setAuthView((current) => current === 'preview' ? current : null); resumePending() }
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return
+        setMe(null); setMeError(errorMessage(error)); setSessionStatus('guest')
+      })
     return () => controller.abort()
-  }, [meRetry])
+  }, [hasSession, meRetry, resumePending])
 
   useEffect(() => {
-    const requireLogin = () => { setMe(null); setAuthRequired(true) }
+    const requireLogin = () => {
+      if (writeOpen) pendingAction.current = { type: 'write' }
+      else if (selectedId != null) pendingAction.current = { type: 'detail', id: selectedId }
+      clearSession(); setHasSession(false); setMe(null); setSessionStatus('guest'); setSavedIds([])
+      setWriteOpen(false); setSelectedId(null); setSelected(null); setDetailLoading(false); setDetailError('')
+      setAuthError('로그인이 만료됐어요. 다시 로그인해 주세요.'); setAuthView('login')
+    }
     window.addEventListener('blooming:unauthorized', requireLogin)
     return () => window.removeEventListener('blooming:unauthorized', requireLogin)
-  }, [])
+  }, [writeOpen, selectedId])
 
   useEffect(() => {
     if (selectedId == null) return
@@ -67,11 +100,29 @@ function App() {
 
   const closeDetail = () => { setSelectedId(null); setSelected(null); setHelpful(null); setDetailLoading(false); setDetailError('') }
   const openDetail = (id: number) => {
+    if (!authenticated || needsNickname()) { pendingAction.current = { type: 'detail', id }; setAuthView(authenticated ? 'nickname' : 'login'); return }
     setSelected(null); setHelpful(null); setDetailError(''); setReactionError(''); setDetailLoading(true); setSelectedId(id)
     setDetailRetry((value) => value + 1)
   }
   const retryDetail = () => { setDetailError(''); setDetailLoading(true); setDetailRetry((value) => value + 1) }
-  const openWrite = () => { closeDetail(); setWriteOpen(true); setNotice('') }
+  const openWrite = () => {
+    if (!authenticated || needsNickname()) { pendingAction.current = { type: 'write' }; setAuthView(authenticated ? 'nickname' : 'login'); return }
+    closeDetail(); setWriteOpen(true); setNotice('')
+  }
+  const logout = () => {
+    clearSession(); setHasSession(false); setMe(null); setMeError(''); setSessionStatus('guest'); setAuthError('')
+    closeDetail(); setWriteOpen(false); setAuthView(null); setSavedIds([]); pendingAction.current = null
+    setDraft(emptyDraft()); setRefreshKey((value) => value + 1); setNotice('로그아웃했어요.')
+  }
+  const closeAuth = () => {
+    setAuthView(null); setAuthError(''); pendingAction.current = null
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('preview')) window.history.replaceState(null, '', '/')
+  }
+  const saveNickname = async (nickname: string) => {
+    if (authView === 'preview') { closeAuth(); setNotice('디자인 미리보기를 확인했어요. 실제 계정은 변경하지 않았어요.'); return }
+    const user = await authApi.changeNickname(nickname)
+    finishNickname(); setMe(user); setAuthView(null); setNotice('닉네임을 저장했어요.'); resumePending()
+  }
   const completeWrite = async (values: ExperienceDraft) => {
     const post = await postsApi.create(values)
     setDraft(emptyDraft())
@@ -99,12 +150,20 @@ function App() {
   }
 
   return <div className="app-shell">
-    <a className="skip-link" href="#main-content">본문으로 바로가기</a>
-    <Header nickname={me?.nickname} onNavigate={(label) => setNotice(`${label} 화면을 준비하고 있어요.`)} />
+    <a className="skip-link" href={authView ? '#auth-content' : '#main-content'}>본문으로 바로가기</a>
+    <Header nickname={me?.nickname} authenticated={authenticated} checking={sessionStatus === 'checking'}
+      activeBoard={!authView}
+      onLogin={() => setAuthView('login')} onLogout={logout} onNickname={() => setAuthView('nickname')}
+      onNavigate={(label) => { if (label === '경험 게시판' || label === '홈') { if (!needsNickname()) closeAuth() } else setNotice(`${label} 화면을 준비하고 있어요.`) }} />
     <div className="page-container">
-      {(meError || authRequired) && <div className="api-banner" role="alert">
-        <span>{authRequired ? '로그인이 필요해요. 다시 로그인해 주세요.' : meError}</span>
-        <button onClick={() => setMeRetry((value) => value + 1)}>내 정보 다시 확인</button>
+      {authView && <AuthPage key={authView} mode={authView} error={authError || meError} initialNickname={authView === 'nickname' ? me?.nickname : ''}
+        required={authView === 'nickname' && needsNickname()} onClose={closeAuth} onLogout={logout}
+        onPreview={() => setAuthView('preview')} onSwitch={() => setAuthView(authView === 'signup' ? 'login' : 'signup')} onSave={saveNickname} />}
+      <div hidden={Boolean(authView)}>
+      {meError && <div className="api-banner" role="alert">
+        <span>{meError}</span>
+        {hasSession && <button onClick={() => { setSessionStatus('checking'); setMeRetry((value) => value + 1) }}>다시 확인</button>}
+        <button onClick={() => setAuthView('login')}>로그인</button>
       </div>}
       {(detailLoading || detailError) && <div className="api-banner" role={detailError ? 'alert' : 'status'}>
         <span>{detailLoading ? '경험을 불러오는 중이에요.' : detailError}</span>
@@ -113,6 +172,7 @@ function App() {
       </div>}
       <BoardPage key={boardVersion} initialResult={initialResult} refreshKey={refreshKey}
         onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />
+      </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
       helped={helpful?.helped ?? false} saved={savedIds.includes(selected.id)}
@@ -121,9 +181,9 @@ function App() {
       onToggleSave={() => setSavedIds((ids) => ids.includes(selected.id) ? ids.filter((id) => id !== selected.id) : [...ids, selected.id])}
       onWrite={openWrite} />}
     {writeOpen && <WriteModal draft={draft} onChange={setDraft} onClose={() => setWriteOpen(false)} onComplete={completeWrite} />}
-    <button className="ai-fab" onClick={() => setNotice('AI 로드맵 화면을 준비하고 있어요.')} aria-label="AI 로드맵 열기">
+    {!authView && <button className="ai-fab" onClick={() => setNotice('AI 로드맵 화면을 준비하고 있어요.')} aria-label="AI 로드맵 열기">
       <img src={aiMascot} alt="" /><span>AI 로드맵</span>
-    </button>
+    </button>}
     <footer className="site-footer"><div><img className="footer-logo-image" src={bloomingLogo} alt="BLOOMING" /><p>모든 경험은 다음 도전을 위한 성장의 재료입니다.</p></div></footer>
     {notice && <div className="notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')} aria-label="안내 닫기"><X size={16} /></button></div>}
   </div>
