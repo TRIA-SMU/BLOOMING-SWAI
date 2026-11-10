@@ -84,7 +84,7 @@ export function AuthPage({ mode, error, initialNickname = '', required = false, 
       </button>
       {required && <button className="auth-secondary" type="button" disabled={busy} onClick={onLogout}>로그아웃</button>}
     </form>}
-    {!required && <button className="auth-back-link" onClick={close} disabled={busy}><ArrowLeft size={13} />게시판으로 돌아가기</button>}
+    {!required && <button className="auth-back-link" onClick={close} disabled={busy}><ArrowLeft size={13} />이전 화면으로 돌아가기</button>}
     {import.meta.env.DEV && login && <button className="auth-preview-link" onClick={onPreview}>닉네임 화면 미리보기</button>}
     </section>
   </main>

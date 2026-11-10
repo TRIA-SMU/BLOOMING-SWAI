@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { Header } from './components/Header'
 import { BoardPage } from './pages/BoardPage'
 import { HomePage } from './pages/HomePage'
+import { AnalysisPage } from './pages/AnalysisPage'
 import { DetailModal } from './pages/DetailModal'
 import { WriteModal } from './pages/WriteModal'
 import { AuthPage } from './pages/AuthPage'
@@ -19,12 +20,12 @@ import aiMascot from './assets/ai-mascot.png'
 import './App.css'
 
 function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
-  const [screen, setScreen] = useState<'home' | 'board'>(() => window.location.hash === '#board' ? 'board' : 'home')
+  const [screen, setScreen] = useState<'home' | 'board' | 'analysis'>(() => window.location.hash === '#analysis' ? 'analysis' : window.location.hash === '#board' ? 'board' : 'home')
   useEffect(() => {
     const syncScreen = () => {
       const hash = window.location.hash
-      if (hash && hash !== '#home' && hash !== '#board') return
-      setScreen(hash === '#board' ? 'board' : 'home')
+      if (hash && hash !== '#home' && hash !== '#board' && hash !== '#analysis') return
+      setScreen(hash === '#analysis' ? 'analysis' : hash === '#board' ? 'board' : 'home')
       window.scrollTo(0, 0)
     }
     window.addEventListener('hashchange', syncScreen)
@@ -148,12 +149,12 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
 
   const navigate = (label: string) => {
     if (needsNickname()) { setAuthView('nickname'); return }
-    if (label !== '홈' && label !== '경험 게시판') {
+    if (label !== '홈' && label !== '경험 게시판' && label !== '도전 요인 분석') {
       setNotice(`${label} 화면을 준비하고 있어요.`)
       return
     }
     closeAuth(); closeDetail(); setNotice('')
-    const next = label === '홈' ? 'home' : 'board'
+    const next = label === '홈' ? 'home' : label === '도전 요인 분석' ? 'analysis' : 'board'
     setScreen(next)
     window.location.hash = next
     window.scrollTo(0, 0)
@@ -179,7 +180,7 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
   return <div className="app-shell">
     <a className="skip-link" href={authView ? '#auth-content' : '#main-content'}>본문으로 바로가기</a>
     <Header nickname={me?.nickname} authenticated={authenticated} checking={sessionStatus === 'checking'}
-      activeBoard={!authView && screen === 'board'}
+      activePage={authView ? null : screen}
       onLogin={() => setAuthView('login')} onLogout={logout} onNickname={() => setAuthView('nickname')}
       onNavigate={navigate} />
     <div className="page-container">
@@ -197,9 +198,10 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
         {detailError && <button onClick={retryDetail}>다시 시도</button>}
         <button onClick={closeDetail}>닫기</button>
       </div>}
-      {screen === 'home' ? <HomePage onBoard={() => navigate('경험 게시판')} onAnalysis={() => navigate('도전 요인 분석')} />
-        : <BoardPage key={boardVersion} initialResult={initialResult} refreshKey={refreshKey}
-          onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />}
+      {screen === 'home' && <HomePage onBoard={() => navigate('경험 게시판')} onAnalysis={() => navigate('도전 요인 분석')} />}
+      {screen === 'board' && <BoardPage key={boardVersion} initialResult={initialResult} refreshKey={refreshKey}
+        onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />}
+      {screen === 'analysis' && <AnalysisPage authenticated={authenticated} userId={me?.id} onLogin={() => setAuthView('login')} onDetail={(item) => openDetail(item.id)} />}
       </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
