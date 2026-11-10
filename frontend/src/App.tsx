@@ -175,6 +175,8 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
       </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
+      currentUserId={me?.id}
+      onReportSuccess={() => setRefreshKey((value) => value + 1)}
       helped={helpful?.helped ?? false} saved={savedIds.includes(selected.id)}
       helpfulBusy={helpfulBusy} helpfulDisabled={!me || me.id === selected.authorId} error={reactionError}
       onClose={closeDetail} onToggleHelpful={() => void toggleHelpful()}
