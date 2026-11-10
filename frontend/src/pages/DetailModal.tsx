@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Bookmark, Flag, Heart, SquarePen } from 'lucide-react'
 import { GrowthIcon } from '../components/GrowthIcon'
 import { ResultBadge } from '../components/ResultBadge'
+import { ReportModal } from './ReportModal'
 import type { Experience } from '../types/experience'
 import './DetailModal.css'
 
@@ -12,15 +13,25 @@ interface DetailModalProps {
   helpfulBusy?: boolean
   helpfulDisabled?: boolean
   error?: string
+  currentUserId?: number
   onClose: () => void
   onToggleHelpful: () => void
   onToggleSave: () => void
   onWrite: () => void
+  onReportSuccess?: () => void
 }
 
-export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulDisabled = false, error, onClose, onToggleHelpful, onToggleSave, onWrite }: DetailModalProps) {
+export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulDisabled = false, error, currentUserId, onClose, onToggleHelpful, onToggleSave, onWrite, onReportSuccess }: DetailModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [reportNotice, setReportNotice] = useState('')
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reported, setReported] = useState(false)
+  const isOwn = currentUserId != null && item.authorId === currentUserId
+  useEffect(() => {
+    if (!reportNotice) return
+    const timer = window.setTimeout(() => setReportNotice(''), 2600)
+    return () => window.clearTimeout(timer)
+  }, [reportNotice])
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -79,10 +90,14 @@ export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulD
         <button className="text-button" onClick={onWrite}><SquarePen size={16} />내 경험도 기록하기</button>
         <div>
           <button className="text-button" aria-pressed={saved} onClick={onToggleSave}><Bookmark size={15} fill={saved ? 'currentColor' : 'none'} />{saved ? '저장됨' : '저장'}</button>
-          <button className="text-button text-button--muted" onClick={() => setReportNotice('신고 기능을 준비하고 있어요.')}><Flag size={15} />신고</button>
+          <button className="text-button text-button--muted" disabled={isOwn || currentUserId == null} onClick={() => setReportOpen(true)}><Flag size={15} />신고</button>
         </div>
       </div>
-      {reportNotice && <p className="detail-notice" role="status">{reportNotice}</p>}
+      {isOwn && <p className="own-report-note">내 글은 신고할 수 없어요.</p>}
+      {reportNotice && <div className="report-toast" role="status">{reportNotice}</div>}
     </article>
+    {reportOpen && <ReportModal postId={item.id} alreadyReported={reported} onClose={() => setReportOpen(false)}
+      onDuplicate={() => setReported(true)}
+      onSuccess={(message) => { setReportOpen(false); setReported(true); setReportNotice(message); onReportSuccess?.() }} />}
   </dialog>
 }
