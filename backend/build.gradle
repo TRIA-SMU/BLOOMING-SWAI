@@ -41,3 +41,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// 배포용: bootJar 하나만 만들기 (plain jar가 같이 생기면 Docker에서 헷갈림)
+tasks.named('jar') {
+	enabled = false
+}
