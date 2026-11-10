@@ -51,9 +51,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponse get(Long postId) {
+    public PostResponse get(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> ApiException.notFound("글을 찾을 수 없어요"));
+        if (post.getStatus() == PostStatus.HIDDEN && !post.isWrittenBy(userId)) {
+            throw ApiException.notFound("글을 찾을 수 없어요");
+        }
         return PostResponse.from(post);
     }
 
