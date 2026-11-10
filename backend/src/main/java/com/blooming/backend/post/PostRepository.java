@@ -1,6 +1,7 @@
 package com.blooming.backend.post;
 
 import java.util.List;
+import java.util.Collection;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
@@ -35,4 +36,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("select coalesce(sum(p.helpfulCount), 0) from Post p where p.author.id = :authorId")
     long sumHelpfulCountByAuthorId(@Param("authorId") Long authorId);
+
+    /** 분석 대상 글 (공개 글만, 도전 유형 기준, 키워드는 선택) */
+    @Query("""
+            select distinct p from Post p
+            left join fetch p.factorTags
+            where p.status = :status
+              and p.challengeType = :challengeType
+              and (:keyword is null
+                   or p.title like concat('%', :keyword, '%')
+                   or p.goodPoints like concat('%', :keyword, '%')
+                   or p.badPoints like concat('%', :keyword, '%')
+                   or p.lessons like concat('%', :keyword, '%')
+                   or p.nextPlan like concat('%', :keyword, '%'))
+            """)
+    List<Post> findForAnalysis(@Param("status") PostStatus status,
+                               @Param("challengeType") ChallengeType challengeType,
+                               @Param("keyword") String keyword);
 }

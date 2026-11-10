@@ -18,6 +18,7 @@ import com.blooming.backend.post.dto.PostCreateRequest;
 import com.blooming.backend.post.dto.PostResponse;
 import com.blooming.backend.post.dto.PostSummaryResponse;
 import com.blooming.backend.post.dto.MyPageResponse;
+import com.blooming.backend.post.dto.AnalysisResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -66,5 +67,11 @@ public class PostController {
     @GetMapping("/me")
     public MyPageResponse myPage(@LoginUser Long userId) {
         return postService.myPage(userId);
+    }
+
+    @GetMapping("/analysis")
+    public AnalysisResponse analyze(@RequestParam ChallengeType challengeType,
+                                    @RequestParam(required = false) String keyword) {
+        return postService.analyze(challengeType, keyword);
     }
 }
