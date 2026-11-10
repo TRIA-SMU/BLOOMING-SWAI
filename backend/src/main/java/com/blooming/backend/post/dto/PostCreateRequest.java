@@ -20,6 +20,6 @@ public record PostCreateRequest(
         @NotEmpty(message = "요인 태그를 1개 이상 골라주세요") Set<FactorTag> factorTags,
         String goodPoints,
         String badPoints,
-        String lessons,
+        @NotBlank(message = "배운 점을 입력해주세요") String lessons,
         String nextPlan) {
 }
