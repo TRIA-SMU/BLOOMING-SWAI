@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Menu, X, UserRound, ChevronRight, LogOut } from 'lucide-react'
 import bloomingSymbol from '../assets/blooming-symbol.png'
 
-export function Header({ onNavigate, nickname, authenticated, checking, activeBoard = true, onLogin, onLogout, onNickname }: {
+export function Header({ onNavigate, nickname, authenticated, checking, activePage = 'board', onLogin, onLogout, onNickname }: {
   onNavigate: (label: string) => void
   nickname?: string
   authenticated: boolean
   checking: boolean
-  activeBoard?: boolean
+  activePage?: 'home' | 'board' | 'analysis' | null
   onLogin: () => void
   onLogout: () => void
   onNickname: () => void
@@ -26,9 +26,9 @@ export function Header({ onNavigate, nickname, authenticated, checking, activeBo
       <span className="header-logo-word">BLOOMING</span>
     </button>
     <nav id="main-navigation" className={`main-nav${mobileOpen ? ' main-nav--open' : ''}`} aria-label="주요 메뉴">
-      {['경험 게시판', '도전 요인 분석', '체크리스트'].map((label) => <button
-        key={label} className={`nav-item${label === '경험 게시판' && activeBoard ? ' nav-item--active' : ''}`}
-        aria-current={label === '경험 게시판' && activeBoard ? 'page' : undefined}
+      {(['경험 게시판', '도전 요인 분석', '체크리스트'] as const).map((label) => <button
+        key={label} className={`nav-item${(label === '경험 게시판' && activePage === 'board') || (label === '도전 요인 분석' && activePage === 'analysis') ? ' nav-item--active' : ''}`}
+        aria-current={(label === '경험 게시판' && activePage === 'board') || (label === '도전 요인 분석' && activePage === 'analysis') ? 'page' : undefined}
         onClick={() => navigate(label)}>{label}</button>)}
     </nav>
     <div className="header-actions">
