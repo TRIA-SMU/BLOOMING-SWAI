@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { Header } from './components/Header'
+import { Footer } from './components/Footer'
 import { BoardPage } from './pages/BoardPage'
 import { HomePage } from './pages/HomePage'
 import { AnalysisPage } from './pages/AnalysisPage'
@@ -18,7 +19,6 @@ import { authApi, clearSession, finishNickname, needsNickname } from './api/auth
 import { emptyDraft } from './utils/experienceDraft'
 import type { ExperienceDraft } from './utils/experienceDraft'
 import type { Experience } from './types/experience'
-import bloomingLogo from './assets/blooming-logo.png'
 import aiMascot from './assets/ai-rabbit.png'
 import './App.css'
 
@@ -224,7 +224,7 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
     {!authView && screen !== 'roadmap' && <button className="ai-fab" onClick={() => navigate('AI 로드맵')} aria-label="AI 로드맵 열기">
       <img src={aiMascot} alt="" /><span>AI 로드맵</span>
     </button>}
-    <footer className="site-footer"><div><img className="footer-logo-image" src={bloomingLogo} alt="BLOOMING" /><p>모든 경험은 다음 도전을 위한 성장의 재료입니다.</p></div></footer>
+    <Footer />
     {notice && <div className="notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')} aria-label="안내 닫기"><X size={16} /></button></div>}
   </div>
 }
