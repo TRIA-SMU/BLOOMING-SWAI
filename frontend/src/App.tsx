@@ -19,7 +19,7 @@ import { authApi, clearSession, finishNickname, needsNickname } from './api/auth
 import { emptyDraft } from './utils/experienceDraft'
 import type { ExperienceDraft } from './utils/experienceDraft'
 import type { Experience } from './types/experience'
-import aiMascot from './assets/ai-mascot.png'
+import aiMascot from './assets/ai-mascot-clean.png'
 import './App.css'
 
 function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
