@@ -61,7 +61,7 @@ export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulD
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose()
     }}>
     <article className="detail-page">
-      <button className="back-link" onClick={onClose}><ArrowLeft size={19} />경험 게시판으로 돌아가기</button>
+      <button className="back-link" onClick={onClose}><ArrowLeft size={19} />이전 화면으로 돌아가기</button>
       <header className="detail-header">
         <ResultBadge result={item.result} />
         <h1 id="detail-title">{item.title}</h1>

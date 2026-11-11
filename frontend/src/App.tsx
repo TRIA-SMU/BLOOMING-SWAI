@@ -5,6 +5,7 @@ import { BoardPage } from './pages/BoardPage'
 import { HomePage } from './pages/HomePage'
 import { AnalysisPage } from './pages/AnalysisPage'
 import { ChecklistPage } from './pages/ChecklistPage'
+import { MyPage } from './pages/MyPage'
 import { DetailModal } from './pages/DetailModal'
 import { WriteModal } from './pages/WriteModal'
 import { AuthPage } from './pages/AuthPage'
@@ -21,12 +22,12 @@ import aiMascot from './assets/ai-mascot.png'
 import './App.css'
 
 function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
-  const [screen, setScreen] = useState<'home' | 'board' | 'analysis' | 'checklist'>(() => window.location.hash === '#checklist' ? 'checklist' : window.location.hash === '#analysis' ? 'analysis' : window.location.hash === '#board' ? 'board' : 'home')
+  const [screen, setScreen] = useState<'home' | 'board' | 'analysis' | 'checklist' | 'mypage'>(() => window.location.hash === '#mypage' ? 'mypage' : window.location.hash === '#checklist' ? 'checklist' : window.location.hash === '#analysis' ? 'analysis' : window.location.hash === '#board' ? 'board' : 'home')
   useEffect(() => {
     const syncScreen = () => {
       const hash = window.location.hash
-      if (hash && hash !== '#home' && hash !== '#board' && hash !== '#analysis' && hash !== '#checklist') return
-      setScreen(hash === '#checklist' ? 'checklist' : hash === '#analysis' ? 'analysis' : hash === '#board' ? 'board' : 'home')
+      if (hash && hash !== '#home' && hash !== '#board' && hash !== '#analysis' && hash !== '#checklist' && hash !== '#mypage') return
+      setScreen(hash === '#mypage' ? 'mypage' : hash === '#checklist' ? 'checklist' : hash === '#analysis' ? 'analysis' : hash === '#board' ? 'board' : 'home')
       window.scrollTo(0, 0)
     }
     window.addEventListener('hashchange', syncScreen)
@@ -150,12 +151,12 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
 
   const navigate = (label: string) => {
     if (needsNickname()) { setAuthView('nickname'); return }
-    if (label !== '홈' && label !== '경험 게시판' && label !== '도전 요인 분석' && label !== '체크리스트') {
+    if (label !== '홈' && label !== '경험 게시판' && label !== '도전 요인 분석' && label !== '체크리스트' && label !== '마이페이지') {
       setNotice(`${label} 화면을 준비하고 있어요.`)
       return
     }
     closeAuth(); closeDetail(); setNotice('')
-    const next = label === '홈' ? 'home' : label === '체크리스트' ? 'checklist' : label === '도전 요인 분석' ? 'analysis' : 'board'
+    const next = label === '홈' ? 'home' : label === '마이페이지' ? 'mypage' : label === '체크리스트' ? 'checklist' : label === '도전 요인 분석' ? 'analysis' : 'board'
     setScreen(next)
     window.location.hash = next
     window.scrollTo(0, 0)
@@ -204,6 +205,9 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
         onWrite={openWrite} onDetail={(item) => openDetail(item.id)} />}
       {screen === 'analysis' && <AnalysisPage authenticated={authenticated} userId={me?.id} onLogin={() => setAuthView('login')} onChecklist={() => navigate('체크리스트')} onDetail={(item) => openDetail(item.id)} />}
       {screen === 'checklist' && <ChecklistPage key={me?.id ?? 'guest'} authenticated={authenticated} onLogin={() => setAuthView('login')} onAnalysis={() => navigate('도전 요인 분석')} />}
+      {screen === 'mypage' && <MyPage key={me?.id ?? 'guest'} authenticated={authenticated} userId={me?.id} nickname={me?.nickname} refreshKey={refreshKey}
+        onLogin={() => setAuthView('login')} onNickname={() => setAuthView('nickname')} onDetail={openDetail} onWrite={openWrite}
+        onChecklist={() => navigate('체크리스트')} onChanged={() => setRefreshKey((value) => value + 1)} />}
       </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
