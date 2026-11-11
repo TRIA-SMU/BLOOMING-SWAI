@@ -1,6 +1,6 @@
 import { apiRequest } from './client.ts'
 import type { ChallengeCode, PostSummary } from './posts.ts'
-import type { factorLabels } from '../data/writeOptions.ts'
+import type { ApplyFieldCode, PrepPeriodCode, factorLabels } from '../data/writeOptions.ts'
 import type { ChecklistResponse } from './checklist.ts'
 
 export type FactorCode = keyof typeof factorLabels
@@ -9,10 +9,12 @@ export interface AnalysisResponse {
   totalCount: number; successCount: number; failureCount: number; topFactor: FactorCode | null
   factors: FactorStat[]; relatedPosts: PostSummary[]
 }
-export interface AnalysisQuery { challengeType: ChallengeCode; keyword: string }
+export interface AnalysisQuery { challengeType: ChallengeCode; keyword: string; prepPeriod?: PrepPeriodCode | ''; applyField?: ApplyFieldCode | '' }
 export function analysisPath(query: AnalysisQuery) {
   const params = new URLSearchParams({ challengeType: query.challengeType })
   if (query.keyword.trim()) params.set('keyword', query.keyword.trim())
+  if (query.prepPeriod) params.set('prepPeriod', query.prepPeriod)
+  if (query.applyField) params.set('applyField', query.applyField)
   return `/api/posts/analysis?${params}`
 }
 export function insightRequest(challengeType: ChallengeCode, contents: string[]) {

@@ -54,6 +54,7 @@ public class PostService {
                 .nextPlan(req.nextPlan())
                 .factorTags(req.factorTags())
                 .build();
+        post.changeDetails(req.prepPeriod(), req.applyField());
 
         return PostResponse.from(postRepository.save(post));
     }
@@ -86,6 +87,7 @@ public class PostService {
         Post post = getOwnPost(userId, postId);
         post.update(req.resultType(), req.challengeType(), req.stage(), req.title(),
                 req.goodPoints(), req.badPoints(), req.lessons(), req.nextPlan(), req.factorTags());
+        post.changeDetails(req.prepPeriod(), req.applyField());
         return PostResponse.from(post);
     }
 
@@ -117,9 +119,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public AnalysisResponse analyze(ChallengeType challengeType, String keyword) {
+    public AnalysisResponse analyze(ChallengeType challengeType, String keyword,
+                                    PrepPeriod prepPeriod, ApplyField applyField) {
         String kw = (keyword == null || keyword.isBlank()) ? "" : keyword.trim();
-        List<Post> posts = postRepository.findForAnalysis(PostStatus.PUBLIC, challengeType, kw);
+        // 준비 기간·지원 분야는 선택 조건이라 값이 있을 때만 거른다 (PostgreSQL null 파라미터 문제를 피하려고 자바에서 거름)
+        List<Post> posts = postRepository.findForAnalysis(PostStatus.PUBLIC, challengeType, kw).stream()
+                .filter(p -> prepPeriod == null || p.getPrepPeriod() == prepPeriod)
+                .filter(p -> applyField == null || p.getApplyField() == applyField)
+                .toList();
 
         List<Post> success = posts.stream().filter(p -> p.getResultType() == ResultType.SUCCESS).toList();
         List<Post> failure = posts.stream().filter(p -> p.getResultType() != ResultType.SUCCESS).toList();

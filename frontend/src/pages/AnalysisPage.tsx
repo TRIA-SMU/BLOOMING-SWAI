@@ -5,7 +5,8 @@ import type { AnalysisQuery, AnalysisResponse, FactorCode } from '../api/analysi
 import type { ChallengeCode } from '../api/posts'
 import { summaryToExperience } from '../api/posts'
 import { errorMessage } from '../api/client'
-import { challengeLabels, factorLabels } from '../data/writeOptions'
+import { applyFieldLabels, challengeLabels, factorLabels, prepPeriodLabels } from '../data/writeOptions'
+import type { ApplyFieldCode, PrepPeriodCode } from '../data/writeOptions'
 import { ResultBadge } from '../components/ResultBadge'
 import type { Experience } from '../types/experience'
 import './AnalysisPage.css'
@@ -40,6 +41,8 @@ export function AnalysisPage({ onDetail, authenticated, userId, onLogin, onCheck
 }) {
   const [type, setType] = useState<ChallengeCode | ''>('')
   const [keyword, setKeyword] = useState('')
+  const [prepPeriod, setPrepPeriod] = useState<PrepPeriodCode | ''>('')
+  const [applyField, setApplyField] = useState<ApplyFieldCode | ''>('')
   const [query, setQuery] = useState<AnalysisQuery | null>(null)
   const [retry, setRetry] = useState(0)
   const [data, setData] = useState<AnalysisResponse | null>(null)
@@ -69,7 +72,7 @@ export function AnalysisPage({ onDetail, authenticated, userId, onLogin, onCheck
   const analyze = () => {
     if (!type) { setMessage('먼저 도전 유형을 선택해 주세요.'); return }
     setData(null); setError(''); setMessage(''); setSelectedFactor(null); setItems([]); setLoading(true)
-    setQuery({ challengeType: type, keyword: keyword.trim() })
+    setQuery({ challengeType: type, keyword: keyword.trim(), prepPeriod, applyField })
   }
   const selectFactor = (tag: FactorCode) => {
     setSelectedFactor((previous) => previous === tag ? null : tag)
@@ -111,7 +114,17 @@ export function AnalysisPage({ onDetail, authenticated, userId, onLogin, onCheck
         <label className="analysis-field"><span className="analysis-label">활동명 또는 키워드</span><div className="analysis-input"><Search size={17} />
           <input value={keyword} onChange={(event) => { reset(); setKeyword(event.target.value) }} placeholder="예: 콘텐츠 마케팅 인턴" />
         </div></label>
-        <div className="analysis-action-row"><button className="button button--primary analysis-submit" disabled={loading}><BarChart3 size={17} />{loading ? '분석 중…' : '분석하기'}</button></div>
+        <div className="analysis-optional-row">
+          <label className="analysis-field"><span className="analysis-label">준비 기간 <small className="analysis-optional">선택</small></span>
+            <select value={prepPeriod} onChange={(event) => { reset(); setPrepPeriod(event.target.value as PrepPeriodCode | '') }}>
+              <option value="">전체</option>{(Object.entries(prepPeriodLabels) as [PrepPeriodCode, string][]).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+            </select></label>
+          <label className="analysis-field"><span className="analysis-label">지원 분야 <small className="analysis-optional">선택</small></span>
+            <select value={applyField} onChange={(event) => { reset(); setApplyField(event.target.value as ApplyFieldCode | '') }}>
+              <option value="">전체</option>{(Object.entries(applyFieldLabels) as [ApplyFieldCode, string][]).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+            </select></label>
+          <button className="button button--primary analysis-submit" disabled={loading}><BarChart3 size={17} />{loading ? '분석 중…' : '분석하기'}</button>
+        </div>
       </fieldset>
       <div className="analysis-filter-foot" aria-live="polite">{data ? <>현재 조건과 일치하는 기록 <strong>{data.totalCount}개</strong></> : '도전 유형을 고르고 분석하기를 눌러 주세요.'}</div>
     </form>

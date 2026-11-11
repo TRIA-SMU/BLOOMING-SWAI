@@ -1,5 +1,6 @@
 import { apiRequest } from './client.ts'
 import { challengeLabels, factorLabels, resultLabels, stageLabels } from '../data/writeOptions.ts'
+import type { ApplyFieldCode, PrepPeriodCode } from '../data/writeOptions.ts'
 import type { Experience, Growth } from '../types/experience'
 import type { ExperienceDraft } from '../utils/experienceDraft'
 
@@ -27,6 +28,8 @@ export interface PostDetail extends PostSummary {
   badPoints: string | null
   lessons: string | null
   nextPlan: string | null
+  prepPeriod?: PrepPeriodCode | null
+  applyField?: ApplyFieldCode | null
 }
 export interface PostPage {
   content: PostSummary[]
@@ -59,7 +62,7 @@ export function listPath(query: ListQuery) {
 }
 
 export function toCreateRequest(draft: ExperienceDraft) {
-  return { ...draft, title: draft.title.trim(), goodPoints: draft.goodPoints.trim(), badPoints: draft.badPoints.trim(), lessons: draft.lessons.trim(), nextPlan: draft.nextPlan.trim() }
+  return { ...draft, title: draft.title.trim(), goodPoints: draft.goodPoints.trim(), badPoints: draft.badPoints.trim(), lessons: draft.lessons.trim(), nextPlan: draft.nextPlan.trim(), prepPeriod: draft.prepPeriod || null, applyField: draft.applyField || null }
 }
 
 export function summaryToExperience(post: PostSummary): Experience {

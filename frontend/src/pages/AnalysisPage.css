@@ -590,3 +590,7 @@
 
 @keyframes analysis-spin { to { transform: rotate(360deg); } }
 
+
+.analysis-page .analysis-optional { margin-left: 6px; color: #8a929e; font-size: 10px; font-weight: 500; }
+.analysis-page .analysis-optional-row { margin-top: 2px; }
+@media (max-width: 760px) { .analysis-page .analysis-optional-row { grid-template-columns: 1fr; } }

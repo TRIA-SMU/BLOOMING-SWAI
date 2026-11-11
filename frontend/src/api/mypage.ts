@@ -10,6 +10,7 @@ export function postToDraft(post: PostDetail): ExperienceDraft {
     title: post.title, resultType: post.resultType, challengeType: post.challengeType, stage: post.stage,
     factorTags: [...post.factorTags], goodPoints: post.goodPoints ?? '', badPoints: post.badPoints ?? '',
     lessons: post.lessons ?? '', nextPlan: post.nextPlan ?? '',
+    prepPeriod: post.prepPeriod ?? '', applyField: post.applyField ?? '',
   }
 }
 export const mypageApi = {

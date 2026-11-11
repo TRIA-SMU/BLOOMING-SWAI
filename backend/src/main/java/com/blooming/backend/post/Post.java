@@ -96,6 +96,14 @@ public class Post {
     private PostStatus status = PostStatus.PUBLIC;
     // ===========================================
 
+    /** 준비 기간 (선택) */
+    @Enumerated(EnumType.STRING)
+    private PrepPeriod prepPeriod;
+
+    /** 지원 분야 (선택) */
+    @Enumerated(EnumType.STRING)
+    private ApplyField applyField;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -126,6 +134,12 @@ public class Post {
     @PreUpdate
     void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    /** 준비 기간·지원 분야 저장 (둘 다 선택 항목이라 null 가능) */
+    public void changeDetails(PrepPeriod prepPeriod, ApplyField applyField) {
+        this.prepPeriod = prepPeriod;
+        this.applyField = applyField;
     }
 
     public boolean isWrittenBy(Long userId) {

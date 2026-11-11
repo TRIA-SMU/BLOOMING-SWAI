@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { GrowthIcon } from '../components/GrowthIcon'
-import { challengeLabels, factorLabels, resultLabels, stageLabels } from '../data/writeOptions'
+import { applyFieldLabels, challengeLabels, factorLabels, prepPeriodLabels, resultLabels, stageLabels } from '../data/writeOptions'
+import type { ApplyFieldCode, PrepPeriodCode } from '../data/writeOptions'
 import { emptyDraft, validateDraft } from '../utils/experienceDraft'
 import { errorMessage } from '../api/client'
 import type { DraftErrors, ExperienceDraft } from '../utils/experienceDraft'
@@ -124,6 +125,16 @@ export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'creat
           </div>
           <ChoiceGroup name="stage" title="진행 단계" options={stageLabels} selected={draft.stage ? [draft.stage] : []} error={errors.stage} onChange={([value]) => update('stage', value)} />
           <ChoiceGroup name="factorTags" title="요인 태그" options={factorLabels} selected={draft.factorTags} multiple error={errors.factorTags} onChange={(values) => update('factorTags', values)} />
+          <div className="form-grid">
+            <div className="form-field"><label className="field-label" htmlFor="field-prepPeriod">준비 기간<span className="optional-mark">선택</span></label>
+              <select id="field-prepPeriod" className="form-select" value={draft.prepPeriod ?? ''} onChange={(event) => update('prepPeriod', event.target.value as PrepPeriodCode | '')}>
+                <option value="">선택 안 함</option>{(Object.entries(prepPeriodLabels) as [PrepPeriodCode, string][]).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+              </select></div>
+            <div className="form-field"><label className="field-label" htmlFor="field-applyField">지원 분야<span className="optional-mark">선택</span></label>
+              <select id="field-applyField" className="form-select" value={draft.applyField ?? ''} onChange={(event) => update('applyField', event.target.value as ApplyFieldCode | '')}>
+                <option value="">선택 안 함</option>{(Object.entries(applyFieldLabels) as [ApplyFieldCode, string][]).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+              </select></div>
+          </div>
         </section>
         <section className="form-section" aria-labelledby="reflection-heading">
           <div className="form-section-heading"><span>02</span><div><h2 id="reflection-heading">경험을 돌아봐 주세요</h2><p>짧은 문장도 충분해요. 솔직한 기록이 가장 좋은 힌트가 됩니다.</p></div></div>
