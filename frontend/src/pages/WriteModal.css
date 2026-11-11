@@ -59,4 +59,5 @@
   .form-footer > div { justify-content: flex-end; }
   .draft-exit { padding: 20px 12px; }
   .draft-exit > div { flex-wrap: wrap; }
+  .choice-field .chip-group + .chip-group { margin-top: 10px; }
 }
