@@ -1,7 +1,7 @@
 import { apiRequest } from './client.ts'
 import type { ChallengeCode } from './posts.ts'
 
-export interface ChecklistItem { id: number; content: string; done: boolean; source: 'INSIGHT' | 'ROADMAP' | 'CUSTOM'; challengeType: ChallengeCode | null }
+export interface ChecklistItem { id: number; content: string; done: boolean; source: 'INSIGHT' | 'ROADMAP' | 'CUSTOM'; challengeType: ChallengeCode | null; phase?: string | null; stepOrder?: number | null }
 export interface ChecklistResponse { items: ChecklistItem[]; total: number; doneCount: number }
 export function checklistPath(type?: ChallengeCode) {
   return `/api/checklist${type ? `?${new URLSearchParams({ challengeType: type })}` : ''}`

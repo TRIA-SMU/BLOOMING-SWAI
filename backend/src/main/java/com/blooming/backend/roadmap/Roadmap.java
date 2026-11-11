@@ -1,6 +1,7 @@
 package com.blooming.backend.roadmap;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,8 +55,16 @@ public class Roadmap {
     @Column(columnDefinition = "TEXT")
     private String tryItems;
 
+    /** 순서대로 할 단계. 한 줄 = "시점\t행동" (예: "지원 1주 전\t이력서 검토받기") */
+    @Column(columnDefinition = "TEXT")
+    private String stepItems;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    /** 로드맵 한 단계 */
+    public record Step(int order, String phase, String action) {
+    }
 
     public Roadmap(User user, ChallengeType challengeType, List<String> keep, List<String> improve, List<String> tryNew) {
         this.user = user;
@@ -63,6 +72,12 @@ public class Roadmap {
         this.keepItems = String.join("\n", keep);
         this.improveItems = String.join("\n", improve);
         this.tryItems = String.join("\n", tryNew);
+    }
+
+    public Roadmap(User user, ChallengeType challengeType, List<String> keep, List<String> improve, List<String> tryNew,
+            List<Step> steps) {
+        this(user, challengeType, keep, improve, tryNew);
+        this.stepItems = String.join("\n", steps.stream().map(st -> st.phase() + "\t" + st.action()).toList());
     }
 
     @PrePersist
@@ -80,6 +95,33 @@ public class Roadmap {
 
     public List<String> tryList() {
         return split(tryItems);
+    }
+
+    /**
+     * 순서대로 할 단계. 예전에 만든 로드맵(단계 없음)은 유지 → 개선 → 새로 시도 순서로 만들어 준다.
+     */
+    public List<Step> stepList() {
+        List<Step> steps = new ArrayList<>();
+        List<String> lines = split(stepItems);
+        if (!lines.isEmpty()) {
+            for (String line : lines) {
+                int tab = line.indexOf('\t');
+                String phase = tab < 0 ? "다음 단계" : line.substring(0, tab);
+                String action = tab < 0 ? line : line.substring(tab + 1);
+                steps.add(new Step(steps.size() + 1, phase, action));
+            }
+            return steps;
+        }
+        for (String a : keepList()) {
+            steps.add(new Step(steps.size() + 1, "지금처럼 이어가기", a));
+        }
+        for (String a : improveList()) {
+            steps.add(new Step(steps.size() + 1, "아쉬운 점 고치기", a));
+        }
+        for (String a : tryList()) {
+            steps.add(new Step(steps.size() + 1, "새로 해 보기", a));
+        }
+        return steps;
     }
 
     private static List<String> split(String s) {

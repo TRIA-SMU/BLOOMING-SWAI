@@ -50,6 +50,13 @@ public class ChecklistItem {
     @Column(nullable = false)
     private boolean done = false;
 
+    /** 로드맵 단계 시점 (예: "지원 1주 전"). 로드맵에서 담은 항목만 있다 */
+    @Column(length = 30)
+    private String phase;
+
+    /** 로드맵 단계 순서 (1부터). 로드맵에서 담은 항목만 있다 */
+    private Integer stepOrder;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -58,6 +65,13 @@ public class ChecklistItem {
         this.challengeType = challengeType;
         this.content = content;
         this.source = source;
+    }
+
+    public ChecklistItem(User user, ChallengeType challengeType, String content, ChecklistSource source,
+            String phase, Integer stepOrder) {
+        this(user, challengeType, content, source);
+        this.phase = phase;
+        this.stepOrder = stepOrder;
     }
 
     @PrePersist

@@ -4,10 +4,13 @@ import { checklistApi } from '../api/checklist'
 import type { ChecklistApi, ChecklistItem } from '../api/checklist'
 import type { ChallengeCode } from '../api/posts'
 import { errorMessage } from '../api/client'
+import { groupByPhase } from '../api/roadmap'
 import { challengeLabels } from '../data/writeOptions'
 import './ChecklistPage.css'
 
 const sourceLabels = { INSIGHT: '요인 분석', ROADMAP: 'AI 로드맵', CUSTOM: '직접 추가' }
+/** 로드맵 단계 순서대로 (순서 정보가 없는 예전 항목은 뒤로) */
+const byStep = (a: ChecklistItem, b: ChecklistItem) => (a.stepOrder ?? 999) - (b.stepOrder ?? 999) || a.id - b.id
 export function ChecklistPage({ authenticated, onLogin, onAnalysis, api = checklistApi }: {
   authenticated: boolean; onLogin: () => void; onAnalysis: () => void; api?: ChecklistApi
 }) {
@@ -61,6 +64,16 @@ export function ChecklistPage({ authenticated, onLogin, onAnalysis, api = checkl
     if (edit?.id === id) setEdit(null)
     setNotice('준비 항목을 삭제했어요.')
   })
+  const renderItem = (item: ChecklistItem, extraClass = '') => <div className={`checklist-item${extraClass}`} key={item.id}>
+                {edit?.id === item.id ? <form className="checklist-edit" aria-label="준비 항목 수정" onSubmit={(event) => { event.preventDefault(); void update(item.id, { content: edit.content }) }}>
+                  <label><span className="sr-only">수정할 준비 항목</span><input autoFocus value={edit.content} maxLength={100} required disabled={busy} onChange={(event) => setEdit({ id: item.id, content: event.target.value })} onKeyDown={(event) => { if (event.key === 'Escape' && !busy) setEdit(null) }} /></label>
+                  <div><button className="checklist-text-button" disabled={busy || !edit.content.trim()}>저장</button><button type="button" className="checklist-text-button" disabled={busy} onClick={() => setEdit(null)}>취소</button></div>
+                </form> : <>
+                  <label className={item.done ? 'checked' : ''}><input type="checkbox" checked={item.done} disabled={busy || edit != null || deleteId != null} onChange={() => void update(item.id, { done: !item.done })} /><span className="custom-check">{item.done && <Check size={14} />}</span><span>{item.content}</span></label>
+                  <div className="checklist-item-meta"><small>{sourceLabels[item.source]}</small><div><button aria-label={`${item.content} 수정`} disabled={busy || edit != null || deleteId != null} onClick={() => { setEdit({ id: item.id, content: item.content }); setNotice('') }}><Pencil size={14} /></button><button aria-label={`${item.content} 삭제`} disabled={busy || edit != null || deleteId != null} onClick={() => { setDeleteId(item.id); setNotice('') }}><Trash2 size={14} /></button></div></div>
+                </>}
+                {deleteId === item.id && <div className="checklist-delete" role="group" aria-label="준비 항목 삭제 확인"><p>이 준비 항목을 삭제할까요?</p><button className="checklist-text-button" disabled={busy} onClick={() => void remove(item.id)}>삭제하기</button><button className="checklist-text-button" disabled={busy} onClick={() => setDeleteId(null)}>취소</button></div>}
+  </div>
   const doneCount = items.filter((item) => item.done).length
   const visible = items.filter((item) => filter === 'ALL' || (filter === 'GENERAL' ? item.challengeType == null : item.challengeType === filter))
   const groups = [...new Set(visible.map((item) => item.challengeType))].map((challengeType) => ({
@@ -90,16 +103,22 @@ export function ChecklistPage({ authenticated, onLogin, onAnalysis, api = checkl
             return <section className="checklist-plan" key={group.challengeType ?? 'GENERAL'} aria-label={`${label} 준비`}>
               <div className="checklist-plan-head"><div><span>{label}</span><h2>{label} 준비</h2></div><strong>{progress}%</strong></div>
               <div className="checklist-progress" role="progressbar" aria-label={`${label} 준비 완료율`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><span style={{ width: `${progress}%` }} /></div><p>전체 {group.items.length}개 중 {done}개 완료</p>
-              <div className="checklist-items">{group.items.map((item) => <div className="checklist-item" key={item.id}>
-                {edit?.id === item.id ? <form className="checklist-edit" aria-label="준비 항목 수정" onSubmit={(event) => { event.preventDefault(); void update(item.id, { content: edit.content }) }}>
-                  <label><span className="sr-only">수정할 준비 항목</span><input autoFocus value={edit.content} maxLength={100} required disabled={busy} onChange={(event) => setEdit({ id: item.id, content: event.target.value })} onKeyDown={(event) => { if (event.key === 'Escape' && !busy) setEdit(null) }} /></label>
-                  <div><button className="checklist-text-button" disabled={busy || !edit.content.trim()}>저장</button><button type="button" className="checklist-text-button" disabled={busy} onClick={() => setEdit(null)}>취소</button></div>
-                </form> : <>
-                  <label className={item.done ? 'checked' : ''}><input type="checkbox" checked={item.done} disabled={busy || edit != null || deleteId != null} onChange={() => void update(item.id, { done: !item.done })} /><span className="custom-check">{item.done && <Check size={14} />}</span><span>{item.content}</span></label>
-                  <div className="checklist-item-meta"><small>{sourceLabels[item.source]}</small><div><button aria-label={`${item.content} 수정`} disabled={busy || edit != null || deleteId != null} onClick={() => { setEdit({ id: item.id, content: item.content }); setNotice('') }}><Pencil size={14} /></button><button aria-label={`${item.content} 삭제`} disabled={busy || edit != null || deleteId != null} onClick={() => { setDeleteId(item.id); setNotice('') }}><Trash2 size={14} /></button></div></div>
-                </>}
-                {deleteId === item.id && <div className="checklist-delete" role="group" aria-label="준비 항목 삭제 확인"><p>이 준비 항목을 삭제할까요?</p><button className="checklist-text-button" disabled={busy} onClick={() => void remove(item.id)}>삭제하기</button><button className="checklist-text-button" disabled={busy} onClick={() => setDeleteId(null)}>취소</button></div>}
-              </div>)}</div>
+              {(() => {
+                const roadmap = group.items.filter((item) => item.source === 'ROADMAP').sort(byStep)
+                const others = group.items.filter((item) => item.source !== 'ROADMAP')
+                const nextId = roadmap.find((item) => !item.done)?.id
+                return <>
+                  {roadmap.length > 0 && <div className="checklist-section"><h3>AI 로드맵 · 순서대로 해 보세요</h3>
+                    <ol className="checklist-steps">{groupByPhase<ChecklistItem & { phase: string }>(roadmap.map((item) => ({ ...item, phase: item.phase ?? '로드맵' }))).map((phaseGroup, index) => {
+                      const phaseDone = phaseGroup.items.every((item) => item.done)
+                      return <li className={`checklist-step${phaseDone ? ' done' : ''}`} key={`${phaseGroup.phase}-${index}`}>
+                        <div className="checklist-step-marker" aria-hidden="true">{phaseDone ? <Check size={14} /> : index + 1}</div>
+                        <div className="checklist-step-body"><h4>{phaseGroup.phase}</h4><div className="checklist-items checklist-items--single">{phaseGroup.items.map((item) => renderItem(item, item.id === nextId ? ' next' : ''))}</div></div>
+                      </li>
+                    })}</ol></div>}
+                  {others.length > 0 && <div className="checklist-section"><h3>늘 챙길 것 · 요인 분석과 직접 추가</h3><div className="checklist-items">{others.map((item) => renderItem(item))}</div></div>}
+                </>
+              })()}
             </section>
           })}</div>}
     </>}
