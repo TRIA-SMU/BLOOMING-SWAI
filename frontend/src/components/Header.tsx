@@ -7,7 +7,7 @@ export function Header({ onNavigate, nickname, authenticated, checking, activePa
   nickname?: string
   authenticated: boolean
   checking: boolean
-  activePage?: 'home' | 'board' | 'analysis' | null
+  activePage?: 'home' | 'board' | 'analysis' | 'checklist' | null
   onLogin: () => void
   onLogout: () => void
   onNickname: () => void
@@ -26,9 +26,9 @@ export function Header({ onNavigate, nickname, authenticated, checking, activePa
       <span className="header-logo-word">BLOOMING</span>
     </button>
     <nav id="main-navigation" className={`main-nav${mobileOpen ? ' main-nav--open' : ''}`} aria-label="주요 메뉴">
-      {(['경험 게시판', '도전 요인 분석', '체크리스트'] as const).map((label) => <button
-        key={label} className={`nav-item${(label === '경험 게시판' && activePage === 'board') || (label === '도전 요인 분석' && activePage === 'analysis') ? ' nav-item--active' : ''}`}
-        aria-current={(label === '경험 게시판' && activePage === 'board') || (label === '도전 요인 분석' && activePage === 'analysis') ? 'page' : undefined}
+      {([{ label: '경험 게시판', page: 'board' }, { label: '도전 요인 분석', page: 'analysis' }, { label: '체크리스트', page: 'checklist' }] as const).map(({ label, page }) => <button
+        key={label} className={`nav-item${activePage === page ? ' nav-item--active' : ''}`}
+        aria-current={activePage === page ? 'page' : undefined}
         onClick={() => navigate(label)}>{label}</button>)}
     </nav>
     <div className="header-actions">

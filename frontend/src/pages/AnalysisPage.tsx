@@ -20,8 +20,8 @@ const actions: Record<FactorCode, [string, string]> = {
 }
 interface PrepItem { key: string; text: string; selected: boolean; savedFor?: number }
 
-export function AnalysisPage({ onDetail, authenticated, userId, onLogin }: {
-  onDetail: (item: Experience) => void; authenticated: boolean; userId?: number; onLogin: () => void
+export function AnalysisPage({ onDetail, authenticated, userId, onLogin, onChecklist }: {
+  onDetail: (item: Experience) => void; authenticated: boolean; userId?: number; onLogin: () => void; onChecklist: () => void
 }) {
   const [type, setType] = useState<ChallengeCode | ''>('')
   const [keyword, setKeyword] = useState('')
@@ -122,7 +122,7 @@ export function AnalysisPage({ onDetail, authenticated, userId, onLogin }: {
           </div><ChevronRight size={17} /></button>)}</div>
         <p className="chart-note">언급 빈도는 성공의 원인이나 성공 확률을 의미하지 않습니다. 요인을 누르면 대표 경험 중 해당 태그가 있는 글을 확인할 수 있어요.</p>
       </section>
-      <section className="analysis-section checklist-section"><div className="section-heading-row"><div><h2>준비 체크리스트</h2><p>참고할 요인을 골라 ‘할 것’과 ‘피할 것’으로 담아 보세요. 문장을 직접 고칠 수 있어요.</p></div></div>
+      <section className="analysis-section checklist-section"><div className="section-heading-row"><div><h2>준비 체크리스트</h2><p>참고할 요인을 골라 ‘할 것’과 ‘피할 것’으로 담아 보세요. 문장을 직접 고칠 수 있어요.</p></div><button className="button button--secondary" onClick={onChecklist}>체크리스트에서 관리 <ChevronRight size={15} /></button></div>
         <div className="prep-checklist">{data.factors.flatMap((factor) => ([0, 1] as const).filter((side) => side === 0 ? data.successCount >= 5 && factor.successCount > 0 : data.failureCount >= 5 && factor.failureCount > 0).map((side) => {
           const key = `${factor.tag}-${side}`; const item = items.find((entry) => entry.key === key)
           return <div className={`prep-item${item?.selected ? ' checked' : ''}`} key={key}>
