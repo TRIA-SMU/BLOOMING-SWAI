@@ -21,7 +21,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             where p.status = :status
               and p.resultType = :resultType
               and (:challengeType is null or p.challengeType = :challengeType)
-              and (:keyword is null
+              and (:keyword = ''
                    or p.title like concat('%', :keyword, '%')
                    or p.goodPoints like concat('%', :keyword, '%')
                    or p.badPoints like concat('%', :keyword, '%')
@@ -43,7 +43,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             left join fetch p.factorTags
             where p.status = :status
               and p.challengeType = :challengeType
-              and (:keyword is null
+              and (:keyword = ''
                    or p.title like concat('%', :keyword, '%')
                    or p.goodPoints like concat('%', :keyword, '%')
                    or p.badPoints like concat('%', :keyword, '%')
