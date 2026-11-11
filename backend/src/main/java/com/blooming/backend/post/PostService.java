@@ -75,7 +75,7 @@ public class PostService {
                 ? Sort.by(Sort.Direction.DESC, "helpfulCount").and(Sort.by(Sort.Direction.DESC, "createdAt"))
                 : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 50), order);
-        String kw = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
+        String kw = (keyword == null || keyword.isBlank()) ? "" : keyword.trim();
 
         return postRepository.search(PostStatus.PUBLIC, resultType, challengeType, kw, pageable)
                 .map(PostSummaryResponse::from);
@@ -118,7 +118,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public AnalysisResponse analyze(ChallengeType challengeType, String keyword) {
-        String kw = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
+        String kw = (keyword == null || keyword.isBlank()) ? "" : keyword.trim();
         List<Post> posts = postRepository.findForAnalysis(PostStatus.PUBLIC, challengeType, kw);
 
         List<Post> success = posts.stream().filter(p -> p.getResultType() == ResultType.SUCCESS).toList();
