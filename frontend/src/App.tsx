@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage'
 import { AnalysisPage } from './pages/AnalysisPage'
 import { ChecklistPage } from './pages/ChecklistPage'
 import { MyPage } from './pages/MyPage'
+import { RoadmapPage } from './pages/RoadmapPage'
 import { DetailModal } from './pages/DetailModal'
 import { WriteModal } from './pages/WriteModal'
 import { AuthPage } from './pages/AuthPage'
@@ -22,12 +23,12 @@ import aiMascot from './assets/ai-mascot.png'
 import './App.css'
 
 function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
-  const [screen, setScreen] = useState<'home' | 'board' | 'analysis' | 'checklist' | 'mypage'>(() => window.location.hash === '#mypage' ? 'mypage' : window.location.hash === '#checklist' ? 'checklist' : window.location.hash === '#analysis' ? 'analysis' : window.location.hash === '#board' ? 'board' : 'home')
+  const [screen, setScreen] = useState<'home' | 'board' | 'analysis' | 'checklist' | 'mypage' | 'roadmap'>(() => window.location.hash === '#roadmap' ? 'roadmap' : window.location.hash === '#mypage' ? 'mypage' : window.location.hash === '#checklist' ? 'checklist' : window.location.hash === '#analysis' ? 'analysis' : window.location.hash === '#board' ? 'board' : 'home')
   useEffect(() => {
     const syncScreen = () => {
       const hash = window.location.hash
-      if (hash && hash !== '#home' && hash !== '#board' && hash !== '#analysis' && hash !== '#checklist' && hash !== '#mypage') return
-      setScreen(hash === '#mypage' ? 'mypage' : hash === '#checklist' ? 'checklist' : hash === '#analysis' ? 'analysis' : hash === '#board' ? 'board' : 'home')
+      if (hash && hash !== '#home' && hash !== '#board' && hash !== '#analysis' && hash !== '#checklist' && hash !== '#mypage' && hash !== '#roadmap') return
+      setScreen(hash === '#roadmap' ? 'roadmap' : hash === '#mypage' ? 'mypage' : hash === '#checklist' ? 'checklist' : hash === '#analysis' ? 'analysis' : hash === '#board' ? 'board' : 'home')
       window.scrollTo(0, 0)
     }
     window.addEventListener('hashchange', syncScreen)
@@ -151,12 +152,12 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
 
   const navigate = (label: string) => {
     if (needsNickname()) { setAuthView('nickname'); return }
-    if (label !== '홈' && label !== '경험 게시판' && label !== '도전 요인 분석' && label !== '체크리스트' && label !== '마이페이지') {
+    if (label !== '홈' && label !== '경험 게시판' && label !== '도전 요인 분석' && label !== '체크리스트' && label !== '마이페이지' && label !== 'AI 로드맵') {
       setNotice(`${label} 화면을 준비하고 있어요.`)
       return
     }
     closeAuth(); closeDetail(); setNotice('')
-    const next = label === '홈' ? 'home' : label === '마이페이지' ? 'mypage' : label === '체크리스트' ? 'checklist' : label === '도전 요인 분석' ? 'analysis' : 'board'
+    const next = label === '홈' ? 'home' : label === 'AI 로드맵' ? 'roadmap' : label === '마이페이지' ? 'mypage' : label === '체크리스트' ? 'checklist' : label === '도전 요인 분석' ? 'analysis' : 'board'
     setScreen(next)
     window.location.hash = next
     window.scrollTo(0, 0)
@@ -207,7 +208,8 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
       {screen === 'checklist' && <ChecklistPage key={me?.id ?? 'guest'} authenticated={authenticated} onLogin={() => setAuthView('login')} onAnalysis={() => navigate('도전 요인 분석')} />}
       {screen === 'mypage' && <MyPage key={me?.id ?? 'guest'} authenticated={authenticated} userId={me?.id} nickname={me?.nickname} refreshKey={refreshKey}
         onLogin={() => setAuthView('login')} onNickname={() => setAuthView('nickname')} onDetail={openDetail} onWrite={openWrite}
-        onChecklist={() => navigate('체크리스트')} onChanged={() => setRefreshKey((value) => value + 1)} />}
+        onChecklist={() => navigate('체크리스트')} onRoadmap={() => navigate('AI 로드맵')} onChanged={() => setRefreshKey((value) => value + 1)} />}
+      {screen === 'roadmap' && <RoadmapPage key={me?.id ?? 'guest'} authenticated={authenticated} onLogin={() => setAuthView('login')} onWrite={openWrite} onChecklist={() => navigate('체크리스트')} />}
       </div>
     </div>
     {selected && selected.id === selectedId && <DetailModal key={selected.id} item={selected}
@@ -219,7 +221,7 @@ function App({ initialAuthError = '', previewNickname = false }: { initialAuthEr
       onToggleSave={() => setSavedIds((ids) => ids.includes(selected.id) ? ids.filter((id) => id !== selected.id) : [...ids, selected.id])}
       onWrite={openWrite} />}
     {writeOpen && <WriteModal draft={draft} onChange={setDraft} onClose={() => setWriteOpen(false)} onComplete={completeWrite} />}
-    {!authView && <button className="ai-fab" onClick={() => setNotice('AI 로드맵 화면을 준비하고 있어요.')} aria-label="AI 로드맵 열기">
+    {!authView && screen !== 'roadmap' && <button className="ai-fab" onClick={() => navigate('AI 로드맵')} aria-label="AI 로드맵 열기">
       <img src={aiMascot} alt="" /><span>AI 로드맵</span>
     </button>}
     <footer className="site-footer"><div><img className="footer-logo-image" src={bloomingLogo} alt="BLOOMING" /><p>모든 경험은 다음 도전을 위한 성장의 재료입니다.</p></div></footer>

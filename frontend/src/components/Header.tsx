@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu, X, UserRound, ChevronRight, LogOut } from 'lucide-react'
+import { Menu, X, UserRound, ChevronRight, LogOut, Route } from 'lucide-react'
 import bloomingSymbol from '../assets/blooming-symbol.png'
 
 export function Header({ onNavigate, nickname, authenticated, checking, activePage = 'board', onLogin, onLogout, onNickname }: {
@@ -7,7 +7,7 @@ export function Header({ onNavigate, nickname, authenticated, checking, activePa
   nickname?: string
   authenticated: boolean
   checking: boolean
-  activePage?: 'home' | 'board' | 'analysis' | 'checklist' | 'mypage' | null
+  activePage?: 'home' | 'board' | 'analysis' | 'checklist' | 'mypage' | 'roadmap' | null
   onLogin: () => void
   onLogout: () => void
   onNickname: () => void
@@ -42,6 +42,7 @@ export function Header({ onNavigate, nickname, authenticated, checking, activePa
           <div id="profile-menu" className="profile-dropdown" onKeyDown={(event) => { if (event.key === 'Escape') setProfileOpen(false) }}>
             <div className="profile-dropdown-head"><UserRound size={22} /><div><strong>{nickname ?? '내 정보'}</strong></div></div>
             <button onClick={() => navigate('마이페이지')}><UserRound size={16} /><span>마이페이지</span><ChevronRight size={15} /></button>
+            <button onClick={() => navigate('AI 로드맵')}><Route size={16} /><span>AI 로드맵</span><ChevronRight size={15} /></button>
             <button onClick={() => { setProfileOpen(false); onNickname() }}><UserRound size={16} /><span>닉네임 변경</span><ChevronRight size={15} /></button>
             <button onClick={() => { setProfileOpen(false); onLogout() }}><LogOut size={16} /><span>로그아웃</span><ChevronRight size={15} /></button>
           </div>

@@ -29,6 +29,6 @@ export function MyPagePreview() {
   return <div className="page-container"><div className="api-banner"><span>마이페이지 디자인 미리보기 · 실제 계정과 글은 변경하지 않아요.</span><a href="/#mypage">서비스 화면</a></div>
     {notice && <div className="api-banner" role="status">{notice}</div>}
     <MyPage authenticated userId={1} refreshKey={refreshKey} api={api} onChanged={() => setRefreshKey((value) => value + 1)}
-      onLogin={() => {}} onNickname={() => window.location.assign('/?preview=nickname')} onDetail={() => setNotice('상세 화면은 로그인 후 서비스에서 확인할 수 있어요.')} onWrite={() => setNotice('새 글은 로그인 후 서비스에서 작성할 수 있어요.')} onChecklist={() => window.location.assign('/?preview=checklist')} />
+      onLogin={() => {}} onNickname={() => window.location.assign('/?preview=nickname')} onDetail={() => setNotice('상세 화면은 로그인 후 서비스에서 확인할 수 있어요.')} onWrite={() => setNotice('새 글은 로그인 후 서비스에서 작성할 수 있어요.')} onChecklist={() => window.location.assign('/?preview=checklist')} onRoadmap={() => window.location.assign('/?preview=roadmap')} />
   </div>
 }
