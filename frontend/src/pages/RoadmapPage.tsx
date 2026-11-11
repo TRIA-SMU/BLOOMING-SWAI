@@ -5,7 +5,7 @@ import { roadmapActions, roadmapApi, roadmapCategories } from '../api/roadmap'
 import type { RoadmapAction, RoadmapApi, RoadmapAvailability, RoadmapCategory, RoadmapResponse } from '../api/roadmap'
 import type { ChallengeCode } from '../api/posts'
 import { challengeLabels } from '../data/writeOptions'
-import aiMascot from '../assets/ai-mascot.png'
+import aiMascot from '../assets/ai-mascot-clean.png'
 import './RoadmapPage.css'
 
 export function RoadmapPage({ authenticated, onLogin, onWrite, onChecklist, api = roadmapApi }: {
