@@ -1,4 +1,5 @@
 import { challengeLabels, factorLabels, resultLabels, stageLabels } from '../data/writeOptions.ts'
+import type { ApplyFieldCode, PrepPeriodCode } from '../data/writeOptions.ts'
 import type { Experience } from '../types/experience'
 
 export interface ExperienceDraft {
@@ -11,11 +12,14 @@ export interface ExperienceDraft {
   badPoints: string
   lessons: string
   nextPlan: string
+  /** 선택 항목 */
+  prepPeriod?: PrepPeriodCode | ''
+  applyField?: ApplyFieldCode | ''
 }
 export type DraftErrors = Partial<Record<keyof ExperienceDraft, string>>
 
 export function emptyDraft(): ExperienceDraft {
-  return { title: '', resultType: '', challengeType: '', stage: '', factorTags: [], goodPoints: '', badPoints: '', lessons: '', nextPlan: '' }
+  return { title: '', resultType: '', challengeType: '', stage: '', factorTags: [], goodPoints: '', badPoints: '', lessons: '', nextPlan: '', prepPeriod: '', applyField: '' }
 }
 
 export function validateDraft(draft: ExperienceDraft): DraftErrors {

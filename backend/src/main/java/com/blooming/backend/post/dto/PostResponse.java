@@ -3,12 +3,14 @@ package com.blooming.backend.post.dto;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.blooming.backend.post.ApplyField;
 import com.blooming.backend.post.ChallengeType;
 import com.blooming.backend.post.FactorTag;
 import com.blooming.backend.post.GrowthStage;
 import com.blooming.backend.post.Post;
 import com.blooming.backend.post.PostStatus;
 import com.blooming.backend.post.ResultType;
+import com.blooming.backend.post.PrepPeriod;
 import com.blooming.backend.post.Stage;
 
 public record PostResponse(
@@ -27,6 +29,8 @@ public record PostResponse(
         int helpfulCount,
         GrowthStage growthStage,
         PostStatus status,
+        PrepPeriod prepPeriod,
+        ApplyField applyField,
         LocalDateTime createdAt) {
 
     public static PostResponse from(Post p) {
@@ -46,6 +50,8 @@ public record PostResponse(
                 p.getHelpfulCount(),
                 p.getGrowthStage(),
                 p.getStatus(),
+                p.getPrepPeriod(),
+                p.getApplyField(),
                 p.getCreatedAt());
     }
 }

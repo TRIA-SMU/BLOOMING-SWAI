@@ -71,7 +71,9 @@ public class PostController {
 
     @GetMapping("/analysis")
     public AnalysisResponse analyze(@RequestParam ChallengeType challengeType,
-                                    @RequestParam(required = false) String keyword) {
-        return postService.analyze(challengeType, keyword);
+                                    @RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false) PrepPeriod prepPeriod,
+                                    @RequestParam(required = false) ApplyField applyField) {
+        return postService.analyze(challengeType, keyword, prepPeriod, applyField);
     }
 }

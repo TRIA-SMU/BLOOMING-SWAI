@@ -1,6 +1,10 @@
 export const resultLabels = { SUCCESS: '성공', FAILURE: '실패', STOPPED: '중단' } as const
 export const challengeLabels = { CONTEST: '공모전', ACTIVITY: '대외활동', INTERN: '인턴', JOB: '취업', PROJECT: '프로젝트', ETC: '기타' } as const
 export const stageLabels = { DOCUMENT: '서류', INTERVIEW: '면접', PRESENTATION: '발표', PRELIMINARY: '예선', FINAL: '본선', ETC: '기타' } as const
+export const prepPeriodLabels = { WITHIN_1_WEEK: '1주 이내', WEEKS_2: '2주', MONTH_1: '1개월', MONTHS_3: '3개월', OVER_3_MONTHS: '3개월 이상' } as const
+export const applyFieldLabels = { PLANNING: '기획', DEVELOPMENT: '개발', DESIGN: '디자인', MARKETING: '마케팅', DATA: '데이터', ETC: '기타' } as const
+export type PrepPeriodCode = keyof typeof prepPeriodLabels
+export type ApplyFieldCode = keyof typeof applyFieldLabels
 export const factorLabels = {
   // 1줄 (성공)
   USER_RESEARCH: '사용자 조사',

@@ -10,7 +10,7 @@ const post = { id: 8, authorId: 1, title: '내 경험', resultType: 'SUCCESS', c
 
 test('수정 폼은 기존 분류와 서술형을 불러오고 원본 태그 배열을 변경하지 않는다', () => {
   const draft = postToDraft(post)
-  assert.deepEqual(draft, { title: '내 경험', resultType: 'SUCCESS', challengeType: 'PROJECT', stage: 'FINAL', factorTags: ['ROLE_DIVISION'], goodPoints: '', badPoints: '', lessons: '배운 점', nextPlan: '' })
+  assert.deepEqual(draft, { title: '내 경험', resultType: 'SUCCESS', challengeType: 'PROJECT', stage: 'FINAL', factorTags: ['ROLE_DIVISION'], goodPoints: '', badPoints: '', lessons: '배운 점', nextPlan: '', prepPeriod: '', applyField: '' })
   draft.factorTags.push('ETC')
   assert.deepEqual(post.factorTags, ['ROLE_DIVISION'])
 })
