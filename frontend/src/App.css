@@ -36,10 +36,6 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .button--primary:hover { border-color: var(--brand-dark); background: var(--brand-dark); }
 .button--secondary { border-color: var(--border-strong); background: #fff; }
 .button--secondary:hover { background: #f8faff; }
-.site-footer { border-top: 1px solid var(--border); background: #fff; }
-.site-footer > div { display: flex; align-items: center; justify-content: space-between; width: min(1120px, calc(100% - 48px)); min-height: 82px; margin: 0 auto; }
-.footer-logo-image { width: auto; height: 24px; object-fit: contain; }
-.site-footer p { color: #858b84; font-size: 11px; }
 .ai-fab { position: fixed; z-index: 40; right: 28px; bottom: 28px; width: 92px; height: 92px; }
 .ai-fab img { width: 90px; height: 86px; object-fit: contain; filter: drop-shadow(0 10px 15px rgb(38 60 112 / 20%)); }
 .ai-fab span { position: absolute; right: 4px; bottom: -2px; padding: 4px 8px; border-radius: 5px; color: #fff; background: var(--brand); font-size: 10px; font-weight: 600; }
@@ -47,7 +43,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .notice button { display: grid; flex: none; place-items: center; }
 @media (max-width: 760px) {
   .site-header { height: 62px; }
-  .header-inner, .page-container, .site-footer > div { width: calc(100% - 30px); }
+  .header-inner, .page-container { width: calc(100% - 30px); }
   .header-logo-symbol { width: 28px; height: 28px; }
   .header-logo-word { font-size: 14px; letter-spacing: .11em; }
   .mobile-menu { display: grid; place-items: center; }
@@ -59,12 +55,11 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .page-heading { align-items: center; gap: 15px; margin-bottom: 22px; }
   .page-heading h1 { font-size: 27px; }
   .page-heading p { font-size: 13px; }
-  .site-footer > div { align-items: flex-start; flex-direction: column; justify-content: center; gap: 10px; padding: 20px 0; }
   .ai-fab { right: 16px; bottom: 20px; width: 76px; height: 76px; }
   .ai-fab img { width: 75px; height: 72px; }
 }
 @media (max-width: 420px) {
-  .header-inner, .page-container, .site-footer > div { width: calc(100% - 24px); }
+  .header-inner, .page-container { width: calc(100% - 24px); }
   .page-heading { align-items: flex-start; }
   .page-heading p { max-width: 245px; line-height: 1.55; }
 }

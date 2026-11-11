@@ -11,9 +11,8 @@
   .hero-actions .button { min-width: 0; padding: 0 10px; font-size: 12px; }
 }
 
-/* 헤더/푸터가 흰색으로 덮지 않도록 투명하게 */
-body:has(.home-page--minimal) header,
-body:has(.home-page--minimal) footer {
+/* 홈 헤더는 배경 이미지를 유지하고, 푸터는 공통 디자인을 사용한다. */
+body:has(.home-page--minimal) header {
   background: transparent;
 }
 
