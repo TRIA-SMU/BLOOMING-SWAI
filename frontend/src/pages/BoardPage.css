@@ -30,7 +30,20 @@
 .experience-list { display: flex; flex-direction: column; border-top: 1px solid #cfd5e1; }
 .experience-card { position: relative; overflow: hidden; border-bottom: 1px solid #dfe3eb; background: #fff; transition: background 140ms ease; }
 .experience-card:hover { background: #fcfdff; }
-.card-main { display: grid; grid-template-columns: minmax(0,1fr) 210px; }
+.card-main { display: grid; grid-template-columns: minmax(0,1fr) 420px; }
+.experience-list-head { display: grid; grid-template-columns: minmax(0,1fr) 420px; min-height: 46px; border-bottom: 1px solid var(--border-strong); color: var(--muted); font-size: 12px; }
+.experience-list-head > span { align-self: center; padding-left: 27px; }
+.experience-list-head > div, .card-metadata { display: grid; grid-template-columns: 1fr 1.25fr 1fr .7fr; align-items: center; gap: 12px; padding: 0 20px; text-align: center; }
+.card-metadata { min-width: 0; margin: 0; background: transparent; }
+.card-metadata > div { min-width: 0; }
+.card-metadata dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.card-metadata dd { margin: 0; color: #596375; font-size: 12px; font-variant-numeric: tabular-nums; }
+.card-author { overflow-wrap: anywhere; }
+.card-date { white-space: nowrap; }
+.card-date-short { display: none; }
+.card-growth, .card-helpful { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.card-growth .board-growth-icon { width: 25px; height: 25px; }
+.card-metadata .card-helpful { color: var(--text); }
 .card-reading { min-width: 0; padding: 25px 27px 24px; }
 .card-context, .badge-row, .tag-row, .card-footer { display: flex; align-items: center; flex-wrap: wrap; }
 .card-context { gap: 12px; }
@@ -66,6 +79,12 @@
 .empty-state h2 { margin-bottom: 7px; font-size: 18px; }
 .empty-state p { margin-bottom: 22px; color: var(--muted); font-size: 13px; }
 @media (max-width: 760px) {
+  .experience-list-head { display: none; }
+  .card-metadata { gap: 8px; padding: 14px 12px; border-top: 1px solid var(--border); }
+  .card-metadata dt { position: static; width: auto; height: auto; margin-bottom: 7px; overflow: visible; clip-path: none; color: var(--subtle); font-size: 10px; }
+  .card-metadata dd { font-size: 11px; }
+  .card-date-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .card-date-short { display: inline; }
   .write-button { min-width: 42px; width: 42px; padding: 0; }
   .write-button span { display: none; }
   .result-tabs { padding: 0 8px; }
