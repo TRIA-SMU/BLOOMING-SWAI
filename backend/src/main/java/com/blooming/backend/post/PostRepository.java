@@ -16,6 +16,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByAuthorIdOrderByCreatedAtDesc(Long authorId);
 
     long countByAuthorId(Long authorId);
+
+    boolean existsByTitle(String title);
     @Query("""
             select p from Post p
             where p.status = :status

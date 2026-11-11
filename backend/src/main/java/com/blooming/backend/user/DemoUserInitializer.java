@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
  * (데모용 숫자라 reactions 테이블에는 없음. 1번 글은 0에서 시작)
  */
 @Component
+@Order(1)
 @RequiredArgsConstructor
 public class DemoUserInitializer implements ApplicationRunner {
 
