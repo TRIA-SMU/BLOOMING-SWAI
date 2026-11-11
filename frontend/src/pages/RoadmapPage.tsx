@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronRight } from 'lucide-react'
 import { ApiError, errorMessage } from '../api/client'
-import { roadmapActions, roadmapApi, roadmapCategories } from '../api/roadmap'
-import type { RoadmapAction, RoadmapApi, RoadmapAvailability, RoadmapCategory, RoadmapResponse } from '../api/roadmap'
+import { groupByPhase, roadmapActions, roadmapApi } from '../api/roadmap'
+import type { RoadmapAction, RoadmapApi, RoadmapAvailability, RoadmapResponse } from '../api/roadmap'
 import type { ChallengeCode } from '../api/posts'
 import { challengeLabels } from '../data/writeOptions'
 import aiMascot from '../assets/ai-mascot-clean.png'
@@ -75,7 +75,7 @@ export function RoadmapPage({ authenticated, onLogin, onWrite, onChecklist, api 
     if (!selected.length) return
     lock.current = true; setSaving(true); setNotice('')
     try {
-      await api.save(data.challengeType, selected.map((item) => item.content))
+      await api.save(data.challengeType, selected.map((item) => ({ content: item.content, phase: item.phase, stepOrder: item.order })))
       if (!mounted.current) return
       setActions((previous) => previous.map((item) => selected.some((entry) => entry.key === item.key) ? { ...item, saved: true } : item))
       setNotice('선택한 행동을 내 체크리스트에 담았어요.')
@@ -102,15 +102,19 @@ export function RoadmapPage({ authenticated, onLogin, onWrite, onChecklist, api 
       {!type && <div className="roadmap-state">도전 유형을 고르면 가장 최근에 저장한 로드맵을 확인할 수 있어요.</div>}
       {empty && !generating && !data && <div className="roadmap-state">이 유형의 저장된 로드맵이 아직 없어요. 로드맵 만들기를 눌러 시작해 보세요.</div>}
       {data && <>
-        <div className="roadmap-result-meta"><h2>{challengeLabels[data.challengeType]} 준비 로드맵</h2><p>{data.createdAt.slice(0, 10).replaceAll('-', '. ')} 저장 · 담을 항목을 고르면 문장을 고칠 수 있어요.</p></div>
-        <div className="roadmap-columns">{(Object.entries(roadmapCategories) as [RoadmapCategory, string][]).map(([category, label]) => {
-          const items = actions.filter((item) => item.category === category)
-          return <section className="roadmap-column" key={category} aria-label={label}><header><h3>{label}</h3><strong>{items.length}</strong></header><div>{items.map((item) => <article className={`roadmap-action${item.selected ? ' selected' : ''}`} key={item.key}>
-            <label><input type="checkbox" aria-label={`${label}: ${item.content}`} checked={item.selected} disabled={busy || item.saved} onChange={() => setActions((previous) => previous.map((entry) => entry.key === item.key ? { ...entry, selected: !entry.selected } : entry))} /><span className="custom-check">{item.selected && <Check size={13} />}</span><span>{item.content}</span></label>
-            {item.selected && <><input className="roadmap-edit-content" aria-label={`${label} 문장 수정`} value={item.content} maxLength={100} disabled={busy || item.saved} onChange={(event) => setActions((previous) => previous.map((entry) => entry.key === item.key ? { ...entry, content: event.target.value } : entry))} />{item.saved && <small>체크리스트에 담았어요</small>}</>}
-          </article>)}{!items.length && <p className="roadmap-column-empty">이 항목의 제안이 없어요.</p>}</div></section>
-        })}</div>
-        <section className="roadmap-add"><div><h2>다음 행동을 내 체크리스트로</h2><p>고른 문장을 담고, 체크리스트에서 추가·수정·삭제·완료 체크를 할 수 있어요.</p></div><button className="button button--primary" disabled={!count || busy} onClick={() => void save()}>{saving ? '담는 중…' : `선택한 ${count}개 담기`}</button><button className="button button--secondary" disabled={busy} onClick={onChecklist}>체크리스트 관리 <ChevronRight size={15} /></button></section>
+        <div className="roadmap-result-meta"><h2>{challengeLabels[data.challengeType]} 준비 로드맵</h2><p>{data.createdAt.slice(0, 10).replaceAll('-', '. ')} 저장 · 위에서부터 순서대로 해 보세요. 담을 항목을 고르면 문장을 고칠 수 있어요.</p></div>
+        <div className="roadmap-select-all"><button className="checklist-text-button" disabled={busy || actions.every((item) => item.saved)} onClick={() => { const all = actions.filter((item) => !item.saved).every((item) => item.selected); setActions((previous) => previous.map((item) => item.saved ? item : { ...item, selected: !all })) }}>{actions.filter((item) => !item.saved).every((item) => item.selected) ? '전체 선택 해제' : '전체 선택'}</button></div>
+        <ol className="roadmap-timeline">{groupByPhase(actions).map((group, groupIndex) => <li className="roadmap-phase" key={`${group.phase}-${groupIndex}`}>
+          <div className="roadmap-phase-marker" aria-hidden="true">{groupIndex + 1}</div>
+          <div className="roadmap-phase-body"><h3><span>{groupIndex + 1}단계</span>{group.phase}</h3>
+            {group.items.map((item) => <article className={`roadmap-action${item.selected ? ' selected' : ''}`} key={item.key}>
+              <label><input type="checkbox" aria-label={`${group.phase}: ${item.content}`} checked={item.selected} disabled={busy || item.saved} onChange={() => setActions((previous) => previous.map((entry) => entry.key === item.key ? { ...entry, selected: !entry.selected } : entry))} /><span className="custom-check">{item.selected && <Check size={13} />}</span><span>{item.content}</span></label>
+              {item.selected && <><input className="roadmap-edit-content" aria-label={`${group.phase} 문장 수정`} value={item.content} maxLength={100} disabled={busy || item.saved} onChange={(event) => setActions((previous) => previous.map((entry) => entry.key === item.key ? { ...entry, content: event.target.value } : entry))} />{item.saved && <small>체크리스트에 담았어요</small>}</>}
+            </article>)}
+          </div>
+        </li>)}</ol>
+        {!actions.length && <p className="roadmap-column-empty">제안된 단계가 없어요. 새 로드맵을 만들어 보세요.</p>}
+        <section className="roadmap-add"><div><h2>다음 행동을 내 체크리스트로</h2><p>담은 단계는 체크리스트에서 순서대로 보여요. 완료 체크와 수정·삭제도 할 수 있어요.</p></div><button className="button button--primary" disabled={!count || busy} onClick={() => void save()}>{saving ? '담는 중…' : `선택한 ${count}개 담기`}</button><button className="button button--secondary" disabled={busy} onClick={onChecklist}>체크리스트 관리 <ChevronRight size={15} /></button></section>
         <p className="roadmap-note">생성한 로드맵은 자동 저장돼요. 문장 수정은 체크리스트에 담을 내용에 적용돼요. AI 제안은 참고 자료로 활용해 주세요.</p>
       </>}
       {notice && <div className="api-banner roadmap-notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')}>닫기</button></div>}

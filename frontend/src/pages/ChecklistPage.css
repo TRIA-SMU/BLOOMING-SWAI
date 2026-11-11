@@ -30,6 +30,18 @@
   .checklist-item-meta > div { display: flex; gap: 4px; }
   .checklist-item-meta button { display: grid; width: 30px; height: 28px; border-radius: 5px; place-items: center; }
   .checklist-item-meta button:hover { background: #edf0f6; }
+  .checklist-section + .checklist-section { margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--border); }
+  .checklist-section > h3 { margin: 0 0 12px; color: var(--text); font-size: 13px; font-weight: 700; }
+  .checklist-steps { margin: 0; padding: 0; list-style: none; }
+  .checklist-step { position: relative; display: flex; gap: 14px; padding-bottom: 14px; }
+  .checklist-step:not(:last-child)::before { content: ''; position: absolute; top: 30px; bottom: 0; left: 14px; width: 2px; border-radius: 2px; background: #dfe5f2; }
+  .checklist-step-marker { position: relative; z-index: 1; display: grid; width: 30px; height: 30px; flex: none; border: 2px solid #b9c6e4; border-radius: 50%; color: #526a9f; background: white; font-family: Manrope, sans-serif; font-size: 12px; font-weight: 700; place-items: center; }
+  .checklist-step.done .checklist-step-marker { border-color: var(--growth); color: white; background: var(--growth); }
+  .checklist-step-body { flex: 1; min-width: 0; }
+  .checklist-step-body h4 { margin: 5px 0 8px; color: #526a9f; font-size: 12px; font-weight: 700; }
+  .checklist-items--single { grid-template-columns: 1fr; }
+  .checklist-item.next { border-color: #8aa0d4; box-shadow: 0 0 0 3px #eef2fb; }
+  .checklist-item.next .checklist-item-meta small::after { content: ' · 지금 할 일'; color: var(--brand); font-weight: 700; }
   .checklist-add { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 13px; }
   .checklist-add label { display: flex; flex-direction: column; gap: 9px; min-width: 0; font-size: 12px; font-weight: 600; }
   .checklist-add-content { flex: 1; }

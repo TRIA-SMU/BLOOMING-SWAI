@@ -23,18 +23,23 @@ public class ChecklistService {
     public record CreateRequest(String content, ChecklistSource source, ChallengeType challengeType) {
     }
 
-    /** 여러 개 한 번에 담기 (로드맵/요인 분석에서 '전부 담기'용) */
-    public record BulkCreateRequest(List<String> contents, ChecklistSource source, ChallengeType challengeType) {
+    /** 여러 개 한 번에 담기 (로드맵/요인 분석에서 '전부 담기'용). 로드맵은 단계 정보가 있는 items로 보낸다 */
+    public record BulkCreateRequest(List<String> contents, ChecklistSource source, ChallengeType challengeType,
+            List<BulkItem> items) {
+    }
+
+    /** 로드맵 단계 항목 */
+    public record BulkItem(String content, String phase, Integer stepOrder) {
     }
 
     public record UpdateRequest(String content, Boolean done) {
     }
 
     public record ItemResponse(Long id, String content, boolean done, ChecklistSource source,
-            ChallengeType challengeType) {
+            ChallengeType challengeType, String phase, Integer stepOrder) {
         static ItemResponse from(ChecklistItem item) {
             return new ItemResponse(item.getId(), item.getContent(), item.isDone(), item.getSource(),
-                    item.getChallengeType());
+                    item.getChallengeType(), item.getPhase(), item.getStepOrder());
         }
     }
 
@@ -66,14 +71,21 @@ public class ChecklistService {
 
     @Transactional
     public ChecklistResponse createAll(Long userId, BulkCreateRequest request) {
-        if (request == null || request.contents() == null || request.contents().isEmpty()) {
+        boolean hasItems = request != null && request.items() != null && !request.items().isEmpty();
+        boolean hasContents = request != null && request.contents() != null && !request.contents().isEmpty();
+        if (!hasItems && !hasContents) {
             throw ApiException.badRequest("담을 항목이 없어요");
         }
         User user = userService.getUser(userId);
         ChecklistSource source = request.source() == null ? ChecklistSource.CUSTOM : request.source();
-        List<ChecklistItem> items = request.contents().stream()
-                .map(c -> new ChecklistItem(user, request.challengeType(), validContent(c), source))
-                .toList();
+        List<ChecklistItem> items = hasItems
+                ? request.items().stream()
+                        .map(i -> new ChecklistItem(user, request.challengeType(), validContent(i.content()), source,
+                                validPhase(i.phase()), i.stepOrder()))
+                        .toList()
+                : request.contents().stream()
+                        .map(c -> new ChecklistItem(user, request.challengeType(), validContent(c), source))
+                        .toList();
         checklistRepository.saveAll(items);
         return getMine(userId, request.challengeType());
     }
@@ -102,6 +114,14 @@ public class ChecklistService {
             throw ApiException.notFound("체크리스트 항목을 찾을 수 없어요");
         }
         return item;
+    }
+
+    private String validPhase(String phase) {
+        if (phase == null || phase.isBlank()) {
+            return null;
+        }
+        String trimmed = phase.trim();
+        return trimmed.length() > 30 ? trimmed.substring(0, 30) : trimmed;
     }
 
     private String validContent(String content) {

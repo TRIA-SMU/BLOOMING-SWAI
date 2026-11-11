@@ -9,7 +9,7 @@ export function RoadmapPreview() {
   const [api] = useState<RoadmapApi>(() => {
     const state = new URLSearchParams(window.location.search).get('state')
     const stored = new Map<string, RoadmapResponse>()
-    const example: RoadmapResponse = { id: 1, challengeType: 'CONTEST', keep: ['역할과 진행 상황을 매주 공유하기', '사용자 의견을 팀의 결정에 반영하기'], improve: ['중간 점검 일정을 미리 정하기', '제출 전에 요구사항을 다시 확인하기'], tryNew: ['작은 시제품으로 먼저 검증하기', '경험을 한 문장으로 정리하기'], createdAt: '2026-11-11T12:00:00' }
+    const example: RoadmapResponse = { id: 1, challengeType: 'CONTEST', keep: ['역할과 진행 상황을 매주 공유하기', '사용자 의견을 팀의 결정에 반영하기'], improve: ['중간 점검 일정을 미리 정하기', '제출 전에 요구사항을 다시 확인하기'], tryNew: ['작은 시제품으로 먼저 검증하기', '경험을 한 문장으로 정리하기'], steps: [{ order: 1, phase: '시작 전', action: '공고와 심사 기준 표로 정리하기' }, { order: 2, phase: '시작 전', action: '역할과 진행 상황 공유 규칙 정하기' }, { order: 3, phase: '기획 단계', action: '사용자 의견을 결정에 반영하기' }, { order: 4, phase: '제작 중', action: '중간 점검 일정을 미리 정하기' }, { order: 5, phase: '제작 중', action: '작은 시제품으로 먼저 검증하기' }, { order: 6, phase: '제출 전', action: '요구사항을 다시 확인하기' }, { order: 7, phase: '끝난 후', action: '경험을 한 문장으로 정리하기' }], createdAt: '2026-11-11T12:00:00' }
     if (state !== 'empty') stored.set('CONTEST', example)
     let id = 2
     return {
@@ -20,10 +20,10 @@ export function RoadmapPreview() {
         if (state === 'error') throw new ApiError(503, '디자인 확인용 AI 생성 오류예요.')
         const result = { ...example, id: id++, challengeType: type, createdAt: new Date().toISOString() }; stored.set(type, result); return result
       },
-      save: async (type, contents) => {
+      save: async (type, entries) => {
         if (state === 'save-error') throw new ApiError(503, '디자인 확인용 체크리스트 저장 오류예요.')
-        const request = roadmapChecklistRequest(type, contents)
-        return { items: request.contents.map((content, index) => ({ id: index + 1, content, done: false, challengeType: type, source: 'ROADMAP' as const })), total: request.contents.length, doneCount: 0 }
+        const request = roadmapChecklistRequest(type, entries)
+        return { items: request.items.map((item, index) => ({ id: index + 1, content: item.content, done: false, challengeType: type, source: 'ROADMAP' as const, phase: item.phase, stepOrder: item.stepOrder })), total: request.items.length, doneCount: 0 }
       },
     }
   })
