@@ -1,12 +1,45 @@
 .home-page--minimal { display: grid; min-height: calc(100vh - 238px); place-items: center; }
-.minimal-hero { display: flex; align-items: center; flex-direction: column; width: 100%; min-height: calc(100vh - 235px); padding: 80px 20px 110px; text-align: center; }
+.minimal-hero { display: flex; align-items: center; flex-direction: column; width: 100%; min-height: calc(100vh - 235px); padding: 200px 20px 110px; text-align: center; }
 .minimal-hero .minimal-wordmark { color: var(--brand); font-family: Manrope, sans-serif; font-size: clamp(58px, 8vw, 96px); font-weight: 700; letter-spacing: .025em; line-height: 1; }
 .minimal-hero > p { margin-top: 18px; color: #657087; font-size: 13px; font-weight: 500; letter-spacing: -.015em; }
 .minimal-hero .hero-actions { display: flex; gap: 9px; margin-top: 38px; }
 @media (max-width: 480px) {
-  .minimal-hero { min-height: calc(100vh - 210px); padding: 55px 0 82px; }
+  .minimal-hero { min-height: calc(100vh - 210px); padding: 120px 0 82px; }
   .minimal-hero .minimal-wordmark { font-size: 57px; }
   .minimal-hero > p { max-width: 300px; font-size: 11px; line-height: 1.65; }
   .minimal-hero .hero-actions { display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 7px; }
   .hero-actions .button { min-width: 0; padding: 0 10px; font-size: 12px; }
+}
+
+/* 헤더/푸터가 흰색으로 덮지 않도록 투명하게 */
+body:has(.home-page--minimal) header,
+body:has(.home-page--minimal) footer {
+  background: transparent;
+}
+
+.hero-bg {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  background: url('/mainpage_background_no_orbs.png') center / cover no-repeat; /* 구체를 지운 이미지 */
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  translate: -50% -50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(190,205,248,.75) 45%, rgba(150,172,236,.7));
+  box-shadow: inset 0 0 14px rgba(255,255,255,.7), 0 8px 26px rgba(150,170,230,.25);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.orb--small { left: 10%; top: 26%; width: 4.8vw; aspect-ratio: 1; animation-name: float-a; animation-duration: 8s; }
+.orb--large { left: 85%; top: 42%; width: 10vw; aspect-ratio: 1; animation-name: float-b; animation-duration: 11s; animation-delay: -3s; }
+
+@keyframes float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(60px, -80px, 0) scale(1.08); }
+  66%      { transform: translate3d(-30px, -140px, 0) scale(.95); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(-80px, 60px, 0) scale(1.06); }
+  66%      { transform: translate3d(-40px, -100px, 0) scale(.96); }
 }
