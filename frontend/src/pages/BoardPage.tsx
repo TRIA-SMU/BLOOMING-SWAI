@@ -89,7 +89,7 @@ export function BoardPage({ onWrite, onDetail, refreshKey = 0, initialResult = '
     <section id="experience-results" role="tabpanel" aria-busy={loading} aria-labelledby={`result-tab-${results.indexOf(result)}`}>
       {loading ? <div className="empty-state" role="status">경험을 불러오는 중이에요.</div>
         : error ? <div className="empty-state" role="alert"><h2>목록을 불러오지 못했어요</h2><p>{error}</p><button className="button button--secondary" onClick={() => setRetry((value) => value + 1)}>다시 시도</button></div>
-        : filtered.length ? <div className="experience-list" aria-label="경험 목록">{filtered.map((item) => <ExperienceCard key={item.id} item={item} onClick={() => onDetail(item)} />)}</div>
+        : filtered.length ? <div className="experience-list" aria-label="경험 목록"><div className="experience-list-head" aria-hidden="true"><span>경험</span><div><span>작성자</span><span>날짜</span><span>성장 단계</span><span>도움</span></div></div>{filtered.map((item) => <ExperienceCard key={item.id} item={item} onClick={() => onDetail(item)} />)}</div>
         : <div className="empty-state"><BoardGrowthIcon stage="싹" /><h2>조건에 맞는 경험이 아직 없어요</h2><p>검색어나 도전 유형을 바꾸면 다른 경험을 만날 수 있어요.</p>
           <button className="button button--secondary" onClick={() => { setType(''); setSearch(''); setPage(0) }}>검색 초기화</button>
         </div>}
