@@ -29,11 +29,17 @@
 .detail-meta > div:last-child { padding-right: 0; border-right: 0; }
 .detail-meta dt { margin-bottom: 7px; color: #858b84; font-size: 10px; }
 .detail-meta dd { margin: 0; font-size: 13px; font-weight: 600; }
-.article-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 28px 52px 48px; }
-.article-section { min-width: 0; min-height: 210px; padding: 22px; border: 1px solid var(--border); border-radius: 11px; background: #fbfcfe; }
-.section-number { display: block; margin-bottom: 13px; padding-top: 3px; color: var(--brand); font-family: Manrope, sans-serif; font-size: 11px; font-weight: 700; }
-.article-section h2 { margin-bottom: 14px; font-size: 19px; font-weight: 700; letter-spacing: -.025em; }
-.article-section p { color: #444b44; font-size: 15px; line-height: 1.95; word-break: keep-all; overflow-wrap: anywhere; white-space: pre-wrap; }
+.article-body { width: calc(100% - 104px); max-width: 760px; margin: 0 auto; padding: 30px 0 36px; }
+.article-section { min-width: 0; padding: 24px 0; }
+.article-section:first-child { padding-top: 0; }
+.article-section + .article-section { border-top: 1px solid #edf0f5; }
+.article-section h2 { margin-bottom: 10px; color: #30394a; font-size: 16px; font-weight: 700; letter-spacing: -.02em; line-height: 1.6; }
+.article-section p { color: #4b5565; font-size: 15px; line-height: 1.85; word-break: keep-all; overflow-wrap: anywhere; white-space: pre-wrap; }
+.article-section--lesson { margin: 8px -20px; padding: 20px; border-left: 2px solid #bdcae2; border-radius: 0 8px 8px 0; background: #f5f7fb; }
+.article-section--lesson h2 { color: var(--brand); }
+.article-section--lesson, .article-section--lesson + .article-section { border-top: 0; }
+.article-section:last-child { padding-bottom: 0; }
+.article-section--empty p { color: #7d8796; font-size: 14px; }
 .reaction-card { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 16px; padding: 22px 28px; border: 1px solid #dfe8d7; border-radius: 12px; background: #f2f5fb; }
 .reaction-growth { display: flex; align-items: center; gap: 14px; }
 .reaction-growth > div { display: flex; flex-direction: column; gap: 3px; }
@@ -57,9 +63,11 @@
   .detail-meta { grid-template-columns: 1fr 1fr; }
   .detail-meta > div:nth-child(2) { border-right: 0; }
   .detail-meta > div:last-child { grid-column: 1 / -1; margin-top: 15px; padding: 15px 0 0; border-top: 1px solid #e3ddd4; }
-  .article-body { grid-template-columns: 1fr; padding: 24px 12px 30px; }
-  .article-section { min-height: auto; padding: 20px; }
-  .article-section p { font-size: 14px; line-height: 1.85; }
+  .article-body { width: calc(100% - 24px); padding: 26px 0 30px; }
+  .article-section { padding: 22px 0; }
+  .article-section--lesson { margin: 6px -10px; padding: 18px 10px; }
+  .article-section h2 { font-size: 15px; }
+  .article-section p { font-size: 15px; line-height: 1.85; }
   .reaction-card { align-items: flex-start; flex-direction: column; gap: 18px; padding: 22px; }
   .reaction-action { width: 100%; align-items: flex-start; }
 }

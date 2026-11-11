@@ -47,10 +47,10 @@ export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulD
   }, [])
 
   const sections = [
-    ['잘된 점', item.content.good],
-    ['아쉬운 점', item.content.regret],
-    ['배운 점', item.content.learned],
-    ['다음 도전에서 유지하거나 개선할 점', item.content.next],
+    { key: 'good', title: '잘된 점', text: item.content.good },
+    { key: 'regret', title: '아쉬운 점', text: item.content.regret },
+    { key: 'learned', title: '배운 점', text: item.content.learned },
+    { key: 'next', title: '다음 도전 계획', text: item.content.next },
   ]
 
   return <dialog ref={dialogRef} className="detail-modal" aria-labelledby="detail-title"
@@ -73,9 +73,8 @@ export function DetailModal({ item, helped, saved, helpfulBusy = false, helpfulD
           <div><dt>주요 요인</dt><dd className="tag-row">{item.tags.map((tag) => <span className="factor-tag" key={tag}>{tag}</span>)}</dd></div>
         </dl>
       </header>
-      <div className="article-body">{sections.map(([title, text], index) => <section className="article-section" key={title}>
-        <span className="section-number">{String(index + 1).padStart(2, '0')}</span>
-        <h2>{title}</h2><p>{text.trim() || '작성된 내용이 없어요.'}</p>
+      <div className="article-body">{sections.map(({ key, title, text }) => <section className={`article-section${key === 'learned' ? ' article-section--lesson' : ''}${text.trim() ? '' : ' article-section--empty'}`} key={key} aria-labelledby={`detail-section-${key}`}>
+        <h2 id={`detail-section-${key}`}>{title}</h2><p>{text.trim() || '작성된 내용이 없어요.'}</p>
       </section>)}</div>
       <section className="reaction-card" aria-label="경험 반응">
         <div className="reaction-growth"><GrowthIcon stage={item.growth} /><div><span>현재 이 경험은</span><strong>{item.growth}으로 자라고 있어요</strong></div></div>

@@ -9,6 +9,7 @@ import { MyPagePreview } from './pages/MyPagePreview'
 import { RoadmapPreview } from './pages/RoadmapPreview'
 import { WriteAiPreview } from './pages/WriteAiPreview'
 import { BoardPreview } from './pages/BoardPreview'
+import { DetailPreview } from './pages/DetailPreview'
 
 const callback = consumeOAuthCallback(window.location.href, (url) => window.history.replaceState(null, '', url))
 const previewNickname = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'nickname'
@@ -18,9 +19,10 @@ const previewMyPage = import.meta.env.DEV && new URLSearchParams(window.location
 const previewRoadmap = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'roadmap'
 const previewWriteAi = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'write-ai'
 const previewBoard = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'board'
+const previewDetail = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'detail'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {previewBoard ? <BoardPreview /> : previewWriteAi ? <WriteAiPreview /> : previewRoadmap ? <RoadmapPreview /> : previewMyPage ? <MyPagePreview /> : previewChecklist ? <ChecklistPreview /> : previewReport ? <ReportPreview /> : <App initialAuthError={callback.error} previewNickname={previewNickname} />}
+    {previewDetail ? <DetailPreview /> : previewBoard ? <BoardPreview /> : previewWriteAi ? <WriteAiPreview /> : previewRoadmap ? <RoadmapPreview /> : previewMyPage ? <MyPagePreview /> : previewChecklist ? <ChecklistPreview /> : previewReport ? <ReportPreview /> : <App initialAuthError={callback.error} previewNickname={previewNickname} />}
   </StrictMode>,
 )
