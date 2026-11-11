@@ -38,10 +38,10 @@ function DeletePostDialog({ post, onClose, onConfirm }: { post: MyPost; onClose:
   </dialog>
 }
 
-export function MyPage({ authenticated, userId, nickname, refreshKey, onLogin, onNickname, onDetail, onWrite, onChecklist, onChanged, api = mypageApi }: {
+export function MyPage({ authenticated, userId, nickname, refreshKey, onLogin, onNickname, onDetail, onWrite, onChecklist, onRoadmap, onChanged, api = mypageApi }: {
   authenticated: boolean; userId?: number; nickname?: string; refreshKey: number
   onLogin: () => void; onNickname: () => void; onDetail: (id: number) => void; onWrite: () => void
-  onChecklist: () => void; onChanged: () => void; api?: MyPageApi
+  onChecklist: () => void; onRoadmap: () => void; onChanged: () => void; api?: MyPageApi
 }) {
   const [data, setData] = useState<MyPageResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -111,6 +111,7 @@ export function MyPage({ authenticated, userId, nickname, refreshKey, onLogin, o
           </article>)}</div> : <div className="my-empty"><p>{posts.length ? '이 조건에 해당하는 경험이 아직 없어요.' : '아직 남긴 경험이 없어요. 첫 경험을 기록해 보세요.'}</p><button className="button button--secondary" onClick={onWrite}>경험 기록하기</button></div>}
         </section>
         <button className="my-checklist-link" onClick={onChecklist}><CheckSquare size={18} /><span>내 준비 체크리스트</span><span>확인하기 →</span></button>
+        <button className="my-checklist-link" onClick={onRoadmap}><Flower2 size={18} /><span>내 AI 로드맵</span><span>확인하기 →</span></button>
       </>}
       {(editLoading || editError) && <div className="api-banner" role={editError ? 'alert' : 'status'}><span>{editLoading ? '수정할 경험을 불러오고 있어요.' : editError}</span>{editError && <button onClick={() => { setEditLoading(true); setEditError(''); setEditRetry((value) => value + 1) }}>다시 시도</button>}<button onClick={closeEdit}>닫기</button></div>}
       {editing && <WriteModal key={editing.id} mode="edit" draft={editing.draft} onChange={(draft) => setEditing({ ...editing, draft })} onClose={closeEdit} onComplete={saveEdit} />}
