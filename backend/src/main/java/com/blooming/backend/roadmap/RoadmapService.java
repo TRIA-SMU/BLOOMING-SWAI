@@ -1,6 +1,8 @@
 package com.blooming.backend.roadmap;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,10 +40,10 @@ public class RoadmapService {
     }
 
     public record RoadmapResponse(Long id, ChallengeType challengeType, List<String> keep, List<String> improve,
-            List<String> tryNew, LocalDateTime createdAt) {
+            List<String> tryNew, List<Roadmap.Step> steps, LocalDateTime createdAt) {
         static RoadmapResponse from(Roadmap r) {
             return new RoadmapResponse(r.getId(), r.getChallengeType(), r.keepList(), r.improveList(), r.tryList(),
-                    r.getCreatedAt());
+                    r.stepList(), r.getCreatedAt());
         }
     }
 
@@ -72,7 +74,9 @@ public class RoadmapService {
         }
         usageLimiter.check(userId);
 
+        // 고른 도전 유형의 기록을 먼저 보여 준다 (다른 유형 기록은 참고용)
         String records = myPosts.stream()
+                .sorted(Comparator.comparing((Post p) -> p.getChallengeType() != request.challengeType()))
                 .limit(MAX_POSTS_IN_PROMPT)
                 .map(p -> "- [%s / %s / %s] %s | 잘된 점: %s | 아쉬운 점: %s | 배운 점: %s".formatted(
                         PromptLabels.result(p.getResultType()), PromptLabels.challenge(p.getChallengeType()),
@@ -90,18 +94,26 @@ public class RoadmapService {
                 - improve: 반복된 아쉬움을 고치기 위한 행동 3개
                 - tryNew: 기록에 없던, 새로 시도해 볼 행동 3개
                 - 각 항목은 체크리스트로 쓸 수 있게 "~하기"로 끝나는 30자 이내 행동 문장
+                - steps: 위 행동들을 '%s' 준비 흐름에 맞춰 시간 순서대로 다시 배치한 6~8개 단계
+                  - phase: 언제 할지 나타내는 10자 이내 시점 (예: 시작 전, 지원 2주 전, 면접 전날, 끝난 후)
+                  - 같은 phase에 행동이 여러 개여도 된다. 앞 단계부터 순서대로 적는다
+                  - 도전 유형의 실제 진행 순서를 따른다 (예: 인턴·취업은 서류 → 면접, 공모전은 기획 → 제작 → 발표)
+                  - action: "~하기"로 끝나는 30자 이내 행동 문장
+                - 고른 도전 유형과 맞지 않는 표현(예: 인턴인데 팀 발표 준비)은 그 유형에 맞게 바꿔 쓴다
                 - 기록에 없는 사실을 지어내지 않는다
 
-                형식: {"keep": [], "improve": [], "tryNew": []}
+                형식: {"keep": [], "improve": [], "tryNew": [], "steps": [{"phase": "", "action": ""}]}
 
                 [과거 기록]
                 %s
-                """.formatted(PromptLabels.challenge(request.challengeType()), records);
+                """.formatted(PromptLabels.challenge(request.challengeType()),
+                PromptLabels.challenge(request.challengeType()), records);
 
         Map<String, Object> json = geminiClient.generateJson(prompt);
 
         Roadmap roadmap = new Roadmap(userService.getUser(userId), request.challengeType(),
-                toList(json.get("keep")), toList(json.get("improve")), toList(json.get("tryNew")));
+                toList(json.get("keep")), toList(json.get("improve")), toList(json.get("tryNew")),
+                toSteps(json.get("steps")));
         return RoadmapResponse.from(roadmapRepository.save(roadmap));
     }
 
@@ -109,6 +121,34 @@ public class RoadmapService {
         return value instanceof List<?> list
                 ? list.stream().map(PromptLabels::clean).filter(item -> !item.isBlank()).limit(3).toList()
                 : List.of();
+    }
+
+    private static List<Roadmap.Step> toSteps(Object value) {
+        List<Roadmap.Step> steps = new ArrayList<>();
+        if (!(value instanceof List<?> list)) {
+            return steps;
+        }
+        for (Object o : list) {
+            if (!(o instanceof Map<?, ?> m)) {
+                continue;
+            }
+            String phase = PromptLabels.clean(m.get("phase")).replace("\t", " ");
+            String action = PromptLabels.clean(m.get("action")).replace("\t", " ");
+            if (action.isBlank()) {
+                continue;
+            }
+            if (phase.isBlank()) {
+                phase = "다음 단계";
+            }
+            if (phase.length() > 20) {
+                phase = phase.substring(0, 20);
+            }
+            steps.add(new Roadmap.Step(steps.size() + 1, phase, action));
+            if (steps.size() >= 10) {
+                break;
+            }
+        }
+        return steps;
     }
 
     private static String nz(String s) {

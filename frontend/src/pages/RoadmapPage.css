@@ -25,6 +25,15 @@
   label:focus-within .custom-check { outline: 3px solid var(--growth); outline-offset: 3px; }
   .roadmap-edit-content { width: 100%; min-height: 40px; padding: 8px; border: 1px solid var(--border-strong); border-radius: 6px; background: white; font-size: 11px; }
   .roadmap-action small { color: var(--brand); font-size: 10px; }
+  .roadmap-select-all { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .roadmap-select-all .checklist-text-button { min-height: 30px; color: var(--brand); font-size: 12px; font-weight: 700; }
+  .roadmap-timeline { position: relative; margin: 0; padding: 0; list-style: none; }
+  .roadmap-phase { position: relative; display: flex; gap: 16px; padding-bottom: 18px; }
+  .roadmap-phase:not(:last-child)::before { content: ''; position: absolute; top: 34px; bottom: 0; left: 16px; width: 2px; border-radius: 2px; background: #dfe5f2; }
+  .roadmap-phase-marker { position: relative; z-index: 1; display: grid; width: 34px; height: 34px; flex: none; border-radius: 50%; color: white; background: linear-gradient(135deg, #718bc4, #263c70); font-family: Manrope, sans-serif; font-size: 13px; font-weight: 700; place-items: center; }
+  .roadmap-phase-body { flex: 1; min-width: 0; padding: 16px 18px 9px; border: 1px solid var(--border); border-radius: 12px; background: white; }
+  .roadmap-phase-body h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 12px; font-size: 14px; font-weight: 700; }
+  .roadmap-phase-body h3 span { color: #718bc4; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
   .roadmap-add { display: grid; align-items: end; grid-template-columns: minmax(0, 1fr) auto auto; gap: 9px; margin-top: 12px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: white; }
   .roadmap-add h2 { font-size: 14px; font-weight: 700; }
   .roadmap-add p { margin-top: 4px; color: #858e9d; font-size: 11px; line-height: 1.7; }
