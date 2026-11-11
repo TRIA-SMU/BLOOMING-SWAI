@@ -8,6 +8,7 @@ import { ResultBadge } from '../components/ResultBadge'
 import { BoardGrowthIcon } from '../components/BoardGrowthIcon'
 import { WriteModal } from './WriteModal'
 import type { ExperienceDraft } from '../utils/experienceDraft'
+import type { DraftAiApi } from '../api/draftAi'
 import './MyPage.css'
 
 const growthLabels = { SEED: '씨앗', SPROUT: '싹', BUD: '봉우리', FLOWER: '꽃' } as const
@@ -38,10 +39,10 @@ function DeletePostDialog({ post, onClose, onConfirm }: { post: MyPost; onClose:
   </dialog>
 }
 
-export function MyPage({ authenticated, userId, nickname, refreshKey, onLogin, onNickname, onDetail, onWrite, onChecklist, onRoadmap, onChanged, api = mypageApi }: {
+export function MyPage({ authenticated, userId, nickname, refreshKey, onLogin, onNickname, onDetail, onWrite, onChecklist, onRoadmap, onChanged, api = mypageApi, aiApi }: {
   authenticated: boolean; userId?: number; nickname?: string; refreshKey: number
   onLogin: () => void; onNickname: () => void; onDetail: (id: number) => void; onWrite: () => void
-  onChecklist: () => void; onRoadmap: () => void; onChanged: () => void; api?: MyPageApi
+  onChecklist: () => void; onRoadmap: () => void; onChanged: () => void; api?: MyPageApi; aiApi?: DraftAiApi
 }) {
   const [data, setData] = useState<MyPageResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -114,7 +115,7 @@ export function MyPage({ authenticated, userId, nickname, refreshKey, onLogin, o
         <button className="my-checklist-link" onClick={onRoadmap}><Flower2 size={18} /><span>내 AI 로드맵</span><span>확인하기 →</span></button>
       </>}
       {(editLoading || editError) && <div className="api-banner" role={editError ? 'alert' : 'status'}><span>{editLoading ? '수정할 경험을 불러오고 있어요.' : editError}</span>{editError && <button onClick={() => { setEditLoading(true); setEditError(''); setEditRetry((value) => value + 1) }}>다시 시도</button>}<button onClick={closeEdit}>닫기</button></div>}
-      {editing && <WriteModal key={editing.id} mode="edit" draft={editing.draft} onChange={(draft) => setEditing({ ...editing, draft })} onClose={closeEdit} onComplete={saveEdit} />}
+      {editing && <WriteModal key={editing.id} mode="edit" draft={editing.draft} onChange={(draft) => setEditing({ ...editing, draft })} onClose={closeEdit} onComplete={saveEdit} aiApi={aiApi} />}
       {deleting && <DeletePostDialog post={deleting} onClose={() => setDeleting(null)} onConfirm={remove} />}
     </>}
     {notice && <div className="api-banner mypage-notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')}>닫기</button></div>}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { GrowthIcon } from '../components/GrowthIcon'
@@ -6,6 +6,8 @@ import { challengeLabels, factorLabels, resultLabels, stageLabels } from '../dat
 import { emptyDraft, validateDraft } from '../utils/experienceDraft'
 import { errorMessage } from '../api/client'
 import type { DraftErrors, ExperienceDraft } from '../utils/experienceDraft'
+import { DraftAiPanel } from '../components/DraftAiPanel'
+import type { DraftAiApi } from '../api/draftAi'
 import './WriteModal.css'
 
 interface WriteModalProps {
@@ -14,6 +16,7 @@ interface WriteModalProps {
   onClose: () => void
   onComplete: (draft: ExperienceDraft) => Promise<void>
   mode?: 'create' | 'edit'
+  aiApi?: DraftAiApi
 }
 
 function ChoiceGroup<T extends string>({ name, title, options, selected, error, multiple = false, onChange }: {
@@ -32,13 +35,16 @@ function ChoiceGroup<T extends string>({ name, title, options, selected, error, 
   </fieldset>
 }
 
-export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'create' }: WriteModalProps) {
+export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'create', aiApi }: WriteModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [submitted, setSubmitted] = useState(false)
   const [discardOpen, setDiscardOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const submitting = useRef(false)
+  const [aiBusy, setAiBusy] = useState(false)
+  const aiBusyRef = useRef(false)
+  const handleAiBusy = useCallback((value: boolean) => { aiBusyRef.current = value; setAiBusy(value) }, [])
   const [initialDraft] = useState(draft)
   const errors: DraftErrors = submitted ? validateDraft(draft) : {}
   const dirty = JSON.stringify(draft) !== JSON.stringify(mode === 'edit' ? initialDraft : emptyDraft())
@@ -56,11 +62,11 @@ export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'creat
     }
   }, [])
 
-  const close = () => { if (submitting.current) return; if (dirty) setDiscardOpen(true); else onClose() }
+  const close = () => { if (submitting.current || aiBusyRef.current) return; if (dirty) setDiscardOpen(true); else onClose() }
   const update = <K extends keyof ExperienceDraft>(key: K, value: ExperienceDraft[K]) => onChange({ ...draft, [key]: value })
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (submitting.current) return
+    if (submitting.current || aiBusyRef.current) return
     setSubmitted(true)
     const validation = validateDraft(draft)
     const first = Object.keys(validation)[0]
@@ -99,7 +105,7 @@ export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'creat
       </header>
       <form className="write-form" onSubmit={submit} noValidate aria-busy={saving}>
         {saveError && <div className="form-alert" role="alert">{saveError} 입력한 내용은 유지돼요.</div>}
-        <fieldset className="write-pending-fields" disabled={saving}>
+        <fieldset className="write-pending-fields" disabled={saving || aiBusy}>
         {submitted && Object.keys(errors).length > 0 && <div className="form-alert" role="alert">필수 항목을 확인해 주세요. 나머지 내용은 편한 만큼 작성해도 괜찮아요.</div>}
         <section className="form-section" aria-labelledby="intro-heading">
           <div className="form-section-heading"><span>01</span><div><h2 id="intro-heading">도전을 소개해 주세요</h2><p>어떤 경험이었는지 알아볼 수 있는 기본 정보예요.</p></div></div>
@@ -128,10 +134,11 @@ export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'creat
             {errors[key] && <p className="field-error" id={`${key}-error`}>{errors[key]}</p>}
           </div>)}
         </section>
-        <footer className="form-footer"><p><GrowthIcon stage="씨앗" size="sm" />{mode === 'edit' ? '받은 반응과 성장 단계는 유지돼요.' : '기록한 경험은 작은 씨앗에서 시작해요.'}</p><div>
-          <button type="button" className="button button--secondary" onClick={close}>취소</button><button className="button button--primary" type="submit">{mode === 'edit' ? saving ? '저장 중…' : '수정 내용 저장하기' : saving ? '등록 중…' : '경험 등록하기'}</button>
-        </div></footer>
         </fieldset>
+        <DraftAiPanel draft={draft} disabled={saving} onApply={(factorTags) => onChange({ ...draft, factorTags })} onBusyChange={handleAiBusy} api={aiApi} />
+        <footer className="form-footer"><p><GrowthIcon stage="씨앗" size="sm" />{mode === 'edit' ? '받은 반응과 성장 단계는 유지돼요.' : '기록한 경험은 작은 씨앗에서 시작해요.'}</p><div>
+          <button type="button" className="button button--secondary" disabled={saving || aiBusy} onClick={close}>취소</button><button className="button button--primary" type="submit" disabled={saving || aiBusy}>{mode === 'edit' ? saving ? '저장 중…' : '수정 내용 저장하기' : saving ? '등록 중…' : '경험 등록하기'}</button>
+        </div></footer>
       </form>
     </>}
   </dialog>
