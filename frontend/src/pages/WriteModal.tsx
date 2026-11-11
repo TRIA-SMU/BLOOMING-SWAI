@@ -119,7 +119,7 @@ export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'creat
           </div>
           <div className="form-grid">
             <ChoiceGroup name="resultType" title="결과" options={resultLabels} selected={draft.resultType ? [draft.resultType] : []} error={errors.resultType}
-              onChange={([value]) => onChange({ ...draft, resultType: value, factorTags: draft.resultType === value ? draft.factorTags : [] })} />
+              onChange={([value]) => update('resultType', value)} />
             <ChoiceGroup name="challengeType" title="도전 유형" options={challengeLabels} selected={draft.challengeType ? [draft.challengeType] : []} error={errors.challengeType} onChange={([value]) => update('challengeType', value)} />
           </div>
           <ChoiceGroup name="stage" title="진행 단계" options={stageLabels} selected={draft.stage ? [draft.stage] : []} error={errors.stage} onChange={([value]) => update('stage', value)} />

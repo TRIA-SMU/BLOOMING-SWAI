@@ -159,7 +159,7 @@ public class Post {
         this.reportCount = 0;
     }
 
-    /** 글 수정. 결과를 바꾸면 게시판이 바뀌고 요인 태그도 다시 받는다 */
+    /** 글 수정. 결과를 바꾸면 게시판이 바뀐다. 요인 태그는 결과와 상관없이 20개 중에서 다시 받는다 */
     public void update(ResultType resultType, ChallengeType challengeType, Stage stage, String title,
                        String goodPoints, String badPoints, String lessons, String nextPlan, Set<FactorTag> factorTags) {
         this.resultType = resultType;
