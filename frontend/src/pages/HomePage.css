@@ -1,0 +1,12 @@
+.home-page--minimal { display: grid; min-height: calc(100vh - 238px); place-items: center; }
+.minimal-hero { display: flex; align-items: center; flex-direction: column; width: 100%; min-height: calc(100vh - 235px); padding: 80px 20px 110px; text-align: center; }
+.minimal-hero .minimal-wordmark { color: var(--brand); font-family: Manrope, sans-serif; font-size: clamp(58px, 8vw, 96px); font-weight: 700; letter-spacing: .025em; line-height: 1; }
+.minimal-hero > p { margin-top: 18px; color: #657087; font-size: 13px; font-weight: 500; letter-spacing: -.015em; }
+.minimal-hero .hero-actions { display: flex; gap: 9px; margin-top: 38px; }
+@media (max-width: 480px) {
+  .minimal-hero { min-height: calc(100vh - 210px); padding: 55px 0 82px; }
+  .minimal-hero .minimal-wordmark { font-size: 57px; }
+  .minimal-hero > p { max-width: 300px; font-size: 11px; line-height: 1.65; }
+  .minimal-hero .hero-actions { display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .hero-actions .button { min-width: 0; padding: 0 10px; font-size: 12px; }
+}
