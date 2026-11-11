@@ -1,6 +1,7 @@
 import { apiRequest } from './client.ts'
 import type { ChallengeCode, PostSummary } from './posts.ts'
 import type { factorLabels } from '../data/writeOptions.ts'
+import type { ChecklistResponse } from './checklist.ts'
 
 export type FactorCode = keyof typeof factorLabels
 export interface FactorStat { tag: FactorCode; successCount: number; successRate: number; failureCount: number; failureRate: number }
@@ -14,8 +15,6 @@ export function analysisPath(query: AnalysisQuery) {
   if (query.keyword.trim()) params.set('keyword', query.keyword.trim())
   return `/api/posts/analysis?${params}`
 }
-export interface ChecklistItem { id: number; content: string; done: boolean; source: 'INSIGHT' | 'ROADMAP' | 'CUSTOM'; challengeType: ChallengeCode | null }
-export interface ChecklistResponse { items: ChecklistItem[]; total: number; doneCount: number }
 export function insightRequest(challengeType: ChallengeCode, contents: string[]) {
   const cleaned = [...new Set(contents.map((content) => content.trim()))]
   if (!cleaned.length || cleaned.some((content) => !content || content.length > 100)) throw new Error('준비 항목을 1~100자로 입력해 주세요.')
