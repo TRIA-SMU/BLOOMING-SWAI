@@ -19,7 +19,7 @@ import { emptyDraft } from './utils/experienceDraft'
 import type { ExperienceDraft } from './utils/experienceDraft'
 import type { Experience } from './types/experience'
 import bloomingLogo from './assets/blooming-logo.png'
-import aiMascot from './assets/ai-mascot.png'
+import aiMascot from './assets/ai-rabbit.png'
 import './App.css'
 
 function App({ initialAuthError = '', previewNickname = false }: { initialAuthError?: string; previewNickname?: boolean }) {
