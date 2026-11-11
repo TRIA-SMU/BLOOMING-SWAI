@@ -7,7 +7,7 @@ export function Header({ onNavigate, nickname, authenticated, checking, activePa
   nickname?: string
   authenticated: boolean
   checking: boolean
-  activePage?: 'home' | 'board' | 'analysis' | 'checklist' | null
+  activePage?: 'home' | 'board' | 'analysis' | 'checklist' | 'mypage' | null
   onLogin: () => void
   onLogout: () => void
   onNickname: () => void

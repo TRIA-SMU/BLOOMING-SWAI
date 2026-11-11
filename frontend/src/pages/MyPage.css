@@ -1,0 +1,75 @@
+.mypage {
+  display: flex; flex-direction: column; gap: 16px; width: min(1040px, 100%); margin: 0 auto;
+  .profile-card { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 27px 29px; border: 1px solid var(--border); border-radius: 13px; background: white; }
+  .profile-main { display: flex; align-items: center; gap: 15px; min-width: 0; }
+  .profile-avatar { display: grid; width: 58px; height: 58px; flex: none; border: 1px solid #f1d3d2; border-radius: 50%; color: var(--brand-dark); background: #f1f4f8; place-items: center; }
+  .profile-main h1 { margin-bottom: 5px; font-size: 21px; font-weight: 700; letter-spacing: -.03em; overflow-wrap: anywhere; }
+  .profile-main p { color: var(--muted); font-size: 12px; }
+  .profile-edit { flex: none; min-height: 38px; font-size: 11px; }
+  .my-summary { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: 13px; background: white; }
+  .my-summary > div { display: flex; align-items: center; min-height: 92px; gap: 7px; padding: 20px 23px; border-right: 1px solid var(--border); }
+  .my-summary > div:last-child { border-right: 0; }
+  .my-summary svg { flex: none; color: var(--brand-dark); }
+  .my-summary span { color: #727972; font-size: 10px; }
+  .my-summary strong { margin-left: auto; font-size: 24px; }
+  .records-manager { padding: 26px 28px; border: 1px solid var(--border); border-radius: 13px; background: white; }
+  .record-tabs { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .record-tabs h2 { font-size: 14px; }
+  .record-tabs h2 span { margin-left: 4px; color: var(--subtle); font-size: 11px; }
+  .record-tabs .button { min-height: 36px; font-size: 11px; }
+  .record-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 0 8px; }
+  .record-toolbar > div { display: flex; gap: 5px; }
+  .record-toolbar button { min-height: 28px; padding: 0 9px; border-radius: 6px; color: #7b827b; font-size: 10px; }
+  .record-toolbar button.active { color: #18253f; background: #f1f4f8; font-weight: 700; }
+  .record-toolbar > span { display: flex; align-items: center; gap: 4px; color: #858b84; font-size: 9px; white-space: nowrap; }
+  .managed-list { border-top: 1px solid #efede9; }
+  .managed-record { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 78px; padding: 12px 3px; border-bottom: 1px solid #efede9; }
+  .managed-record-main { display: flex; align-items: center; min-width: 0; flex: 1; gap: 13px; text-align: left; }
+  .managed-record-main > div { min-width: 0; }
+  .managed-record-main h3 { margin: 0 0 5px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+  .managed-record-main p { color: #858b84; font-size: 10px; }
+  .managed-actions { display: flex; flex: none; gap: 7px; }
+  .managed-actions button { display: grid; width: 30px; height: 32px; border: 1px solid var(--border); border-radius: 6px; color: #7d847d; background: white; place-items: center; }
+  .managed-growth { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 5px; width: 110px; flex: none; color: var(--brand); font-size: 11px; }
+  .managed-growth .board-growth-icon { width: 30px; height: 30px; }
+  .managed-growth small { width: 100%; color: var(--muted); font-size: 10px; text-align: center; }
+  .review-status { display: inline-block; margin-top: 6px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 4px; color: var(--brand); background: #f0f3fa; font-size: 10px; }
+  .my-empty, .my-page-guide { display: flex; align-items: center; flex-direction: column; justify-content: center; min-height: 180px; gap: 12px; padding: 24px; text-align: center; }
+  .my-empty p, .my-page-guide p { color: var(--muted); font-size: 12px; line-height: 1.7; }
+  .my-page-guide { min-height: 310px; border: 1px dashed var(--border-strong); border-radius: 13px; }
+  .my-page-guide h1 { font-size: 24px; }
+  .my-checklist-link { display: flex; align-items: center; gap: 12px; padding: 22px 28px; border: 1px solid var(--border); border-radius: 13px; color: var(--brand); background: white; font-size: 13px; text-align: left; }
+  .my-checklist-link > span:last-child { margin-left: auto; font-size: 11px; }
+  .mypage-notice { position: sticky; z-index: 45; bottom: 16px; }
+}
+.delete-post-dialog { width: min(430px, calc(100% - 32px)); margin: auto; padding: 26px; border: 1px solid var(--border); border-radius: 13px; color: var(--text); background: white; box-shadow: 0 24px 70px rgb(17 27 49 / 24%); }
+.delete-post-dialog::backdrop { background: rgb(24 37 63 / 35%); }
+.delete-post-dialog h2 { margin-bottom: 14px; font-size: 20px; }
+.delete-post-dialog p { margin-bottom: 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.delete-post-dialog .delete-post-name { color: var(--text); font-weight: 700; overflow-wrap: anywhere; }
+.delete-post-dialog > div { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+@media (max-width: 760px) {
+  .mypage {
+    .profile-card { padding: 22px 20px; }
+    .profile-main { gap: 10px; }
+    .my-summary { grid-template-columns: 1fr 1fr; }
+    .my-summary > div:nth-child(2) { border-right: 0; }
+    .my-summary > div:nth-child(-n + 2) { border-bottom: 1px solid var(--border); }
+    .records-manager { padding: 21px 18px; }
+    .managed-record { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+    .managed-record-main { grid-column: 1 / -1; align-items: flex-start; }
+    .managed-growth { width: auto; justify-content: flex-start; }
+    .managed-growth small { width: auto; }
+    .managed-actions { justify-self: end; }
+    .my-checklist-link { padding: 20px; }
+  }
+}
+@media (max-width: 480px) {
+  .mypage {
+    .profile-card { align-items: flex-start; flex-direction: column; gap: 14px; }
+    .profile-avatar { width: 48px; height: 48px; }
+    .profile-main p { font-size: 11px; }
+    .my-summary > div { min-height: 78px; padding: 15px; }
+    .my-summary strong { font-size: 21px; }
+  }
+}

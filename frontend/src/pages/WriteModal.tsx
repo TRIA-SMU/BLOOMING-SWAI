@@ -13,6 +13,7 @@ interface WriteModalProps {
   onChange: (draft: ExperienceDraft) => void
   onClose: () => void
   onComplete: (draft: ExperienceDraft) => Promise<void>
+  mode?: 'create' | 'edit'
 }
 
 function ChoiceGroup<T extends string>({ name, title, options, selected, error, multiple = false, onChange }: {
@@ -23,7 +24,7 @@ function ChoiceGroup<T extends string>({ name, title, options, selected, error, 
     <legend className="field-label">{title}<span className="required-mark">필수</span></legend>
     {multiple && <p className="field-hint">경험에 영향을 준 요인을 1개 이상 골라주세요. 여러 개 선택할 수 있어요.</p>}
     <div className="chip-group">{(Object.entries(options) as [T, string][]).map(([value, label]) => <label key={value} className={`select-chip${selected.includes(value) ? ' select-chip--selected' : ''}`}>
-      <input type={multiple ? 'checkbox' : 'radio'} name={name} value={value} checked={selected.includes(value)}
+      <input type={multiple ? 'checkbox' : 'radio'} name={name} value={value} aria-label={label} checked={selected.includes(value)}
         onChange={() => onChange(multiple ? selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value] : [value])} />
       <span>{label}</span>
     </label>)}</div>
@@ -31,15 +32,16 @@ function ChoiceGroup<T extends string>({ name, title, options, selected, error, 
   </fieldset>
 }
 
-export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalProps) {
+export function WriteModal({ draft, onChange, onClose, onComplete, mode = 'create' }: WriteModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [submitted, setSubmitted] = useState(false)
   const [discardOpen, setDiscardOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const submitting = useRef(false)
+  const [initialDraft] = useState(draft)
   const errors: DraftErrors = submitted ? validateDraft(draft) : {}
-  const dirty = JSON.stringify(draft) !== JSON.stringify(emptyDraft())
+  const dirty = JSON.stringify(draft) !== JSON.stringify(mode === 'edit' ? initialDraft : emptyDraft())
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -88,11 +90,11 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) close()
     }}>
     {discardOpen ? <section className="draft-exit" aria-labelledby="draft-exit-title">
-      <h2 id="draft-exit-title">작성을 잠시 멈출까요?</h2><p>닫아도 입력한 내용은 이 화면을 새로고침하기 전까지 유지돼요.</p>
+      <h2 id="draft-exit-title">{mode === 'edit' ? '수정을 그만둘까요?' : '작성을 잠시 멈출까요?'}</h2><p>{mode === 'edit' ? '저장하지 않은 수정 내용은 사라지고 기존 글은 유지돼요.' : '닫아도 입력한 내용은 이 화면을 새로고침하기 전까지 유지돼요.'}</p>
       <div><button className="button button--secondary" onClick={() => setDiscardOpen(false)} autoFocus>계속 작성하기</button><button className="button button--primary" onClick={onClose}>닫기</button></div>
     </section> : <>
-      <header className="write-heading"><button className="back-link" onClick={close}><ArrowLeft size={19} />게시판으로 돌아가기</button>
-        <p className="eyebrow">나의 경험을 다음 사람의 힌트로</p><h1 id="write-title">경험 기록하기</h1>
+      <header className="write-heading"><button className="back-link" onClick={close}><ArrowLeft size={19} />{mode === 'edit' ? '마이페이지로 돌아가기' : '게시판으로 돌아가기'}</button>
+        <p className="eyebrow">나의 경험을 다음 사람의 힌트로</p><h1 id="write-title">{mode === 'edit' ? '경험 수정하기' : '경험 기록하기'}</h1>
         <p>완벽하게 정리하지 않아도 괜찮아요. 기억나는 만큼 천천히 남겨보세요.</p>
       </header>
       <form className="write-form" onSubmit={submit} noValidate aria-busy={saving}>
@@ -126,8 +128,8 @@ export function WriteModal({ draft, onChange, onClose, onComplete }: WriteModalP
             {errors[key] && <p className="field-error" id={`${key}-error`}>{errors[key]}</p>}
           </div>)}
         </section>
-        <footer className="form-footer"><p><GrowthIcon stage="씨앗" size="sm" />기록한 경험은 작은 씨앗에서 시작해요.</p><div>
-          <button type="button" className="button button--secondary" onClick={close}>취소</button><button className="button button--primary" type="submit">{saving ? '등록 중…' : '경험 등록하기'}</button>
+        <footer className="form-footer"><p><GrowthIcon stage="씨앗" size="sm" />{mode === 'edit' ? '받은 반응과 성장 단계는 유지돼요.' : '기록한 경험은 작은 씨앗에서 시작해요.'}</p><div>
+          <button type="button" className="button button--secondary" onClick={close}>취소</button><button className="button button--primary" type="submit">{mode === 'edit' ? saving ? '저장 중…' : '수정 내용 저장하기' : saving ? '등록 중…' : '경험 등록하기'}</button>
         </div></footer>
         </fieldset>
       </form>
